@@ -38,10 +38,7 @@ export default function ResidentPage() {
   const [selectedType, setSelectedType] = useState(null); // null = user hasn't overridden AI pick
 
   // Search states
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-
-  const [position, setPosition] = useState({ lat: 15.4589, lng: 75.0078 });
+  const [position, setPosition] = useState({ lat: null, lng: null });
 
   // ── Authentication Redirects ───────────────────────────────────────────
   useEffect(() => {
@@ -176,10 +173,10 @@ export default function ResidentPage() {
       if (data.latitude && data.longitude) {
         setPosition({ lat: data.latitude, lng: data.longitude });
       } else if (!silent) {
-        alert("Unable to acquire GPS. Please type your address in the search bar.");
+        alert("Unable to acquire GPS.");
       }
     } catch (e) {
-      if (!silent) alert("Unable to acquire GPS. Please type your address in the search bar.");
+      if (!silent) alert("Unable to acquire GPS.");
     } finally {
       setIsLocating(false);
     }
@@ -219,34 +216,12 @@ export default function ResidentPage() {
       (error) => {
         console.warn("GPS blocked or failed:", error);
         if (error.code === error.PERMISSION_DENIED) {
-          alert("Location access is blocked by your browser. Please allow location permissions or type your address manually.");
+          alert("Location access is blocked by your browser. Please allow location permissions to report an issue accurately.");
         }
         fallbackToIP();
       },
-      { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
-  };
-
-  const handleSearchAddress = async () => {
-    if (!searchQuery.trim()) return;
-    setIsSearching(true);
-    try {
-      const apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY || "fm63BZNe6hXB2ad5Xaz5";
-      const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(searchQuery)}.json?key=${apiKey}`);
-      const data = await res.json();
-
-      if (data.features && data.features.length > 0) {
-        const [lng, lat] = data.features[0].center;
-        setPosition({ lat, lng });
-      } else {
-        alert("Location not found. Please try a different search or drag the pin.");
-      }
-    } catch (error) {
-      console.error("Search failed:", error);
-      alert("Search failed. Please check your connection.");
-    } finally {
-      setIsSearching(false);
-    }
   };
 
   const handleReport = async (baseType) => {
@@ -260,8 +235,8 @@ export default function ResidentPage() {
         type,
         description: description.trim(),
         imageUrl: image,
-        lat: position.lat,
-        lng: position.lng,
+        lat: position.lat || 0,
+        lng: position.lng || 0,
         reporterName: session.user.name,
         reporterEmail: session.user.email,
         status: "Pending",
@@ -412,7 +387,7 @@ export default function ResidentPage() {
           <div className="text-center mb-2 mt-2">
             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{t("report_issue_title")}</h1>
             <p className="text-slate-500 mt-2 font-medium flex items-center justify-center gap-2">
-              {t("find_address_drag_pin")}
+              Use your device's exact GPS location
             </p>
           </div>
 
@@ -423,38 +398,12 @@ export default function ResidentPage() {
             </div>
           )}
 
-          {/* Interactive Map Picker */}
+          {/* Interactive Location Picker */}
           <div className="w-full bg-white p-4 rounded-3xl shadow-sm border border-slate-100 relative">
             <div className="flex justify-between items-center mb-3">
               <label className="text-sm font-semibold text-slate-700 ml-1 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-emerald-600" /> {t("exact_location")}
               </label>
-              <button
-                onClick={handleAcquireLocation}
-                className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 rounded-full font-bold flex items-center gap-1 transition"
-              >
-                {isLocating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Navigation className="w-3 h-3" />}
-                {t("find_my_location")}
-              </button>
-            </div>
-
-            {/* Address Search Bar */}
-            <div className="flex gap-2 mb-3">
-              <input
-                type="text"
-                placeholder={t("search_placeholder_resident")}
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearchAddress()}
-              />
-              <button
-                onClick={handleSearchAddress}
-                disabled={isSearching}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition disabled:opacity-50"
-              >
-                {isSearching ? t("searching") : t("search")}
-              </button>
             </div>
 
             <LocationPicker position={position} onPositionChange={setPosition} />
