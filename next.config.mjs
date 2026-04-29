@@ -27,6 +27,8 @@ const nextConfig = {
     }
     return config;
   },
+  // Silence Turbopack hints
+  turbopack: {},
 };
 
 export default withSerwist(nextConfig);
