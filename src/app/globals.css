@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #10b981;
+  --color-primary-dark: #059669;
+  --color-water: #0ea5e9;
+  --color-water-dark: #0284c7;
+  --color-energy: #f59e0b;
+  --color-energy-dark: #d97706;
+  --color-waste: #78716c;
+  --color-waste-dark: #57534e;
+  
+  --color-bg: #f8fafc;
+  --color-card: #ffffff;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg);
+    color: #0f172a;
+    font-family: var(--font-inter), sans-serif;
+  }
+}
