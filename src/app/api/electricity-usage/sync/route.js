@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase, Resident, ElectricityUsage } from "../../../../lib/db/mongoose";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "../../auth/auth";
 
 export async function POST(request) {
   try {
