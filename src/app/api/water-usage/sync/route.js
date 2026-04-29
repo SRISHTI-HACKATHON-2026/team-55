@@ -17,7 +17,7 @@ export async function POST(request) {
     if (!resident) return NextResponse.json({ error: "Resident not found" }, { status: 404 });
 
     const familySize = resident.familySize || 1;
-    const dailyLimit = familySize * 3;
+    const dailyLimit = familySize * 10;
 
     const operations = logs.map(log => {
       let scoreChange = log.amount <= dailyLimit ? 10 : -15;

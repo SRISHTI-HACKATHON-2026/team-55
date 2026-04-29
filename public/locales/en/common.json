@@ -105,7 +105,7 @@
   "water_consumption": "Water Consumption",
   "water_consumption_subtitle": "Track your daily household water usage",
   "daily_water_limit": "Daily Water Limit",
-  "daily_water_desc": "Recommended: 150 liters per person. Stay below 600L total for +20 XP.",
+  "daily_water_desc": "Recommended: 10 liters per person. Stay below your household limit for +20 XP.",
   "liters_consumed": "Liters Consumed Today",
   "log_water_usage": "Log Daily Usage",
   "water_usage_history": "Water Usage History",

@@ -24,7 +24,7 @@ export async function POST(request) {
     }
 
     const familySize = resident.familySize || 1;
-    const LITERS_PER_PERSON = 3;
+    const LITERS_PER_PERSON = 10;
     const dailyLimit = familySize * LITERS_PER_PERSON;
 
     let scoreChange = 0;
