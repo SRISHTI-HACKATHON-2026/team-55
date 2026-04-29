@@ -20,6 +20,11 @@ const MiniMap = dynamic(() => import("../../components/MiniMap"), {
   loading: () => <div className="h-64 w-full mt-4 rounded-2xl bg-slate-100 animate-pulse border border-slate-200" />,
 });
 
+const CommunityVectorMap = dynamic(() => import("../../components/CommunityVectorMap"), {
+  ssr: false,
+  loading: () => <div className="h-96 w-full bg-slate-100 animate-pulse rounded-3xl border border-slate-200" />,
+});
+
 export default function AdminPage() {
   const { data: session } = useSession();
   const { activeTab, setActiveTab } = useUI();
@@ -394,6 +399,9 @@ export default function AdminPage() {
               </div>
             )}
           </div>
+
+          {/* Vector Map Overview */}
+          <CommunityVectorMap reports={reports} />
 
           {/* Report Lists */}
           {[
