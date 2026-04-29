@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { connectToDatabase, Admin, Resident } from "../../../../lib/db/mongoose";
+import { connectToDatabase, Admin, Resident } from "../../../lib/db/mongoose";
 
 export const authOptions = {
   providers: [
