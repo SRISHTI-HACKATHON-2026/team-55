@@ -8,26 +8,10 @@ const withSerwist = withSerwistInit({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Any other Next.js config
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   experimental: {
-    cpus: 1, 
+    cpus: 1,
     workerThreads: false,
   },
-  staticPageGenerationTimeout: 1000,
-  // Disable minification to save memory during build
-  webpack: (config, { dev, isServer }) => {
-    if (!dev && !isServer) {
-      config.optimization.minimize = false;
-    }
-    return config;
-  },
-  // Silence Turbopack hints
   turbopack: {},
 };
 
