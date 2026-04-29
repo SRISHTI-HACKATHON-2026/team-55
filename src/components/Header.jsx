@@ -26,6 +26,17 @@ export default function Header() {
     };
   }, []);
 
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
+    { code: 'kn', name: 'ಕನ್ನಡ', flag: '🇮🇳' },
+    { code: 'mr', name: 'मराठी', flag: '🇮🇳' },
+  ];
+
+  const changeLanguage = (code) => {
+    i18n.changeLanguage(code);
+  };
+
   if (status === "loading") return null;
 
   // Unauthenticated Navbar
@@ -46,7 +57,7 @@ export default function Header() {
             {languages.map((lang) => (
               <button
                 key={lang.code}
-                onClick={() => i18n.changeLanguage(lang.code)}
+                onClick={() => changeLanguage(lang.code)}
                 className={`text-lg hover:scale-110 transition-transform ${i18n.language === lang.code ? 'grayscale-0' : 'grayscale opacity-50'}`}
                 title={lang.name}
               >
@@ -70,17 +81,6 @@ export default function Header() {
   let pageTitle = t("dashboard");
   if (pathname === "/admin") pageTitle = t("admin_control");
   if (pathname.startsWith("/resident") || (pathname === "/" && !isAdmin)) pageTitle = t("resident_portal");
-
-  const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
-    { code: 'kn', name: 'ಕನ್ನಡ', flag: '🇮🇳' },
-    { code: 'mr', name: 'मराठी', flag: '🇮🇳' },
-  ];
-
-  const changeLanguage = (code) => {
-    i18n.changeLanguage(code);
-  };
 
   return (
     <header className="h-16 w-full bg-white flex items-center justify-between px-6 lg:px-10">
