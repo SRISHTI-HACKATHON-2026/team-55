@@ -12,7 +12,7 @@ export default function SignupPage() {
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState("resident");
 
   // Family gender state
   const [familyGenders, setFamilyGenders] = useState({ male: 0, female: 0, other: 0 });
@@ -41,7 +41,7 @@ export default function SignupPage() {
       return;
     }
 
-    if (role === "user" && totalFamily === 0) {
+    if (role === "resident" && totalFamily === 0) {
       setError("Please enter at least 1 family member in the gender breakdown.");
       setIsLoading(false);
       return;
@@ -88,9 +88,9 @@ export default function SignupPage() {
 
           {/* Role Tabs */}
           <div className="p-1.5 bg-slate-50 border-b border-slate-100 flex gap-1">
-            <button type="button" onClick={() => setRole("user")}
+            <button type="button" onClick={() => setRole("resident")}
               className={`flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-                role === "user" ? "bg-emerald-600 text-white shadow-md" : "text-slate-500 hover:bg-white"
+                role === "resident" ? "bg-emerald-600 text-white shadow-md" : "text-slate-500 hover:bg-white"
               }`}>
               <User className="w-4 h-4" /> Resident
             </button>
@@ -188,7 +188,7 @@ export default function SignupPage() {
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">House / Flat Number *</label>
                       <div className="relative mt-1">
                         <Home className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input name="houseNumber" type="text" required={role === "user"} placeholder="e.g. 12A, Flat 3B, Door 204"
+                        <input name="houseNumber" type="text" required={role === "resident"} placeholder="e.g. 12A, Flat 3B, Door 204"
                           className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition" />
                       </div>
                     </div>

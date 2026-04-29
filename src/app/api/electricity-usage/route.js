@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-import { connectToDatabase, User, ElectricityUsage } from "../../../lib/db/mongoose";
+import { connectToDatabase, Resident, ElectricityUsage } from "../../../lib/db/mongoose";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
 
@@ -13,36 +12,33 @@ export async function POST(request) {
 
     await connectToDatabase();
 
-    const user = await User.findById(session.user.id);
-    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const resident = await Resident.findById(session.user.id);
+    if (!resident) return NextResponse.json({ error: "Resident not found" }, { status: 404 });
 
-    const previousAverage = user.averageElectricityBill || 0;
+    const previousAverage = resident.averageElectricityBill || 0;
     let scoreChange = 0;
     let message = "";
 
     if (previousAverage === 0) {
-      // First time entry — set the baseline
-      user.averageElectricityBill = units;
+      resident.averageElectricityBill = units;
       message = "Baseline set! Next month's bill will be compared to this value.";
     } else {
       if (units <= previousAverage) {
-        scoreChange = 25; // Reward for saving energy
+        scoreChange = 25; 
         message = `Excellent! You saved energy compared to your average. +25 XP`;
       } else {
-        scoreChange = -30; // Penalty for excess usage
+        scoreChange = -30; 
         message = `Usage exceeded your average. -30 XP. Try to save energy next month!`;
       }
-      
-      // Optionally update the moving average (50% weight to new bill)
-      user.averageElectricityBill = (previousAverage + units) / 2;
+      resident.averageElectricityBill = (previousAverage + units) / 2;
     }
 
-    user.trustScore = (user.trustScore || 0) + scoreChange;
-    if (user.trustScore < 0) user.trustScore = 0;
-    await user.save();
+    resident.trustScore = (resident.trustScore || 0) + scoreChange;
+    if (resident.trustScore < 0) resident.trustScore = 0;
+    await resident.save();
 
     const usage = await ElectricityUsage.create({
-      userId: user._id,
+      residentId: resident._id,
       units,
       previousAverage,
       scoreImpact: scoreChange,
@@ -52,8 +48,8 @@ export async function POST(request) {
     return NextResponse.json({
       success: true,
       message,
-      newScore: user.trustScore,
-      average: user.averageElectricityBill,
+      newScore: resident.trustScore,
+      average: resident.averageElectricityBill,
       usage
     });
 
@@ -69,15 +65,15 @@ export async function GET() {
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     await connectToDatabase();
-    const history = await ElectricityUsage.find({ userId: session.user.id })
+    const history = await ElectricityUsage.find({ residentId: session.user.id })
       .sort({ createdAt: -1 })
       .limit(6);
 
-    const user = await User.findById(session.user.id).select("averageElectricityBill");
+    const resident = await Resident.findById(session.user.id).select("averageElectricityBill");
 
     return NextResponse.json({ 
       history, 
-      currentAverage: user.averageElectricityBill || 0 
+      currentAverage: resident.averageElectricityBill || 0 
     });
   } catch (error) {
     return NextResponse.json({ error: "Server Error" }, { status: 500 });

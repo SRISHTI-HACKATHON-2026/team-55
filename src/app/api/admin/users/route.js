@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase, User } from "../../../../lib/db/mongoose";
+import { connectToDatabase, Resident } from "../../../../lib/db/mongoose";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
 
@@ -13,7 +13,7 @@ export async function GET() {
 
     await connectToDatabase();
 
-    const users = await User.find({})
+    const users = await Resident.find({})
       .select("-password") // Never return password hashes
       .sort({ createdAt: -1 })
       .lean();
@@ -37,7 +37,7 @@ export async function DELETE(request) {
     if (!userId) return NextResponse.json({ error: "userId required" }, { status: 400 });
 
     await connectToDatabase();
-    await User.findByIdAndDelete(userId);
+    await Resident.findByIdAndDelete(userId);
 
     return NextResponse.json({ success: true, message: "User deleted." });
   } catch (error) {

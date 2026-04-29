@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { connectToDatabase, User } from "../../../../lib/db/mongoose";
+import { connectToDatabase, Admin, Resident } from "../../../../lib/db/mongoose";
 
 export const authOptions = {
   providers: [
@@ -13,10 +13,19 @@ export const authOptions = {
       },
       async authorize(credentials) {
         await connectToDatabase();
-        const user = await User.findOne({ email: credentials.email });
+        
+        // 1. Try finding in Admin collection
+        let user = await Admin.findOne({ email: credentials.email });
+        let role = "admin";
+
+        // 2. If not found, try Resident collection
+        if (!user) {
+          user = await Resident.findOne({ email: credentials.email });
+          role = "resident";
+        }
 
         if (!user) {
-          throw new Error("No user found with this email");
+          throw new Error("No account found with this email");
         }
 
         const isValid = await bcrypt.compare(credentials.password, user.password);
@@ -29,7 +38,7 @@ export const authOptions = {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
-          role: user.role,
+          role: role,
           trustScore: user.trustScore || 0,
         };
       },

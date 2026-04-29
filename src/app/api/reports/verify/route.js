@@ -24,8 +24,8 @@ export async function POST(request) {
 
     // GAMIFICATION: Award +10 Trust Score to the reporter if the issue is successfully resolved!
     if (newStatus === "Resolved" && updatedReport.reporterEmail) {
-      const { User } = require("../../../../lib/db/mongoose");
-      await User.findOneAndUpdate(
+      const { Resident } = require("../../../../lib/db/mongoose");
+      await Resident.findOneAndUpdate(
         { email: updatedReport.reporterEmail },
         { $inc: { trustScore: 10 } }
       );

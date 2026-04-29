@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { connectToDatabase, User } from "../../../../lib/db/mongoose";
+import { connectToDatabase, Admin, Resident } from "../../../../lib/db/mongoose";
 
 export async function POST(request) {
   try {
@@ -17,41 +17,46 @@ export async function POST(request) {
 
     await connectToDatabase();
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser) {
+    // Validate role — default to resident
+    const validRole = ["resident", "admin", "user"].includes(role) ? (role === "user" ? "resident" : role) : "resident";
+
+    // Check if account already exists in either collection
+    const existingAdmin = await Admin.findOne({ email: email.toLowerCase() });
+    const existingResident = await Resident.findOne({ email: email.toLowerCase() });
+    
+    if (existingAdmin || existingResident) {
       return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
     }
 
     // Hash the password with bcrypt (salt rounds: 12)
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Validate role — only allow 'user' or 'admin'
-    const validRole = ["user", "admin"].includes(role) ? role : "user";
-
-    // Build the user document
-    const userData = {
-      name: name.trim(),
-      email: email.toLowerCase().trim(),
-      password: hashedPassword,
-      phone: phone?.trim() || "",
-      role: validRole,
-      trustScore: 0,
-    };
-
-    // Only store household data for residents
-    if (validRole === "user") {
-      userData.houseNumber  = houseNumber?.trim() || "";
-      userData.familySize   = parseInt(familySize) || 1;
-      userData.familyGenders = {
-        male:   parseInt(familyGenders?.male)   || 0,
-        female: parseInt(familyGenders?.female) || 0,
-        other:  parseInt(familyGenders?.other)  || 0,
-      };
+    let newUser;
+    if (validRole === "admin") {
+      newUser = await Admin.create({
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
+        password: hashedPassword,
+        role: "admin",
+        department: "Municipal"
+      });
+    } else {
+      newUser = await Resident.create({
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
+        password: hashedPassword,
+        phone: phone?.trim() || "",
+        role: "resident",
+        trustScore: 0,
+        houseNumber: houseNumber?.trim() || "",
+        familySize: parseInt(familySize) || 1,
+        familyGenders: {
+          male:   parseInt(familyGenders?.male)   || 0,
+          female: parseInt(familyGenders?.female) || 0,
+          other:  parseInt(familyGenders?.other)  || 0,
+        }
+      });
     }
-
-    // Create and save the user to MongoDB Atlas
-    const newUser = await User.create(userData);
 
     return NextResponse.json({
       success: true,
@@ -60,7 +65,7 @@ export async function POST(request) {
         id: newUser._id.toString(),
         name: newUser.name,
         email: newUser.email,
-        role: newUser.role,
+        role: validRole,
       },
     }, { status: 201 });
 

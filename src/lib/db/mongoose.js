@@ -25,19 +25,34 @@ export async function connectToDatabase() {
   return cached.conn;
 }
 
-// ─── User Schema ─────────────────────────────────────────────────────────────
-const UserSchema = new mongoose.Schema(
+// ─── Admin Schema (Administrative Staff) ──────────────────────────────────
+const AdminSchema = new mongoose.Schema(
+  {
+    name:     { type: String, required: true, trim: true },
+    email:    { type: String, required: true, unique: true, lowercase: true, trim: true },
+    password: { type: String, required: true },
+    role:     { type: String, default: "admin" },
+    department: { type: String, default: "Municipal" }
+  },
+  { timestamps: true }
+);
+
+if (mongoose.models.Admin) delete mongoose.models.Admin;
+export const Admin = mongoose.model("Admin", AdminSchema);
+
+// ─── Resident Schema (Citizen / User) ───────────────────────────────────────
+const ResidentSchema = new mongoose.Schema(
   {
     name:       { type: String, required: true, trim: true },
     email:      { type: String, required: true, unique: true, lowercase: true, trim: true },
     password:   { type: String, required: true },
     phone:      { type: String, default: "" },
-    role:       { type: String, enum: ["user", "admin"], default: "user" },
+    role:       { type: String, default: "resident" },
     trustScore: { type: Number, default: 0 },
     isActive:   { type: Boolean, default: true },
     avatar:     { type: String, default: "" },
 
-    // Household / Community Profile (Resident only)
+    // Household / Community Profile
     houseNumber:  { type: String, default: "" },
     familySize:   { type: Number, default: 0, min: 0 },
     familyGenders: {
@@ -45,14 +60,13 @@ const UserSchema = new mongoose.Schema(
       female: { type: Number, default: 0 },
       other:  { type: Number, default: 0 },
     },
-    averageElectricityBill: { type: Number, default: 0 }, // Baseline units/amount
+    averageElectricityBill: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-// Delete cached model to always use the latest schema in dev (hot-reload safe)
-if (mongoose.models.User) delete mongoose.models.User;
-export const User = mongoose.model("User", UserSchema);
+if (mongoose.models.Resident) delete mongoose.models.Resident;
+export const Resident = mongoose.model("Resident", ResidentSchema);
 
 // Report Schema
 const ReportSchema = new mongoose.Schema({
@@ -75,11 +89,11 @@ export const Report = mongoose.model("Report", ReportSchema);
 
 // ─── Water Usage Schema ──────────────────────────────────────────────────────
 const WaterUsageSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  amount: { type: Number, required: true }, // Liters used
-  limit: { type: Number, required: true },  // Calculated limit for that day
+  residentId: { type: mongoose.Schema.Types.ObjectId, ref: "Resident", required: true },
+  amount: { type: Number, required: true }, 
+  limit: { type: Number, required: true },  
   date: { type: Date, default: Date.now },
-  scoreImpact: { type: Number, default: 0 } // Points gained or lost
+  scoreImpact: { type: Number, default: 0 } 
 }, { timestamps: true });
 
 if (mongoose.models.WaterUsage) delete mongoose.models.WaterUsage;
@@ -87,9 +101,9 @@ export const WaterUsage = mongoose.model("WaterUsage", WaterUsageSchema);
 
 // ─── Electricity Usage Schema ────────────────────────────────────────────────
 const ElectricityUsageSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  units: { type: Number, required: true }, // Current month units
-  previousAverage: { type: Number, required: true }, // Baseline at time of entry
+  residentId: { type: mongoose.Schema.Types.ObjectId, ref: "Resident", required: true },
+  units: { type: Number, required: true }, 
+  previousAverage: { type: Number, required: true }, 
   date: { type: Date, default: Date.now },
   scoreImpact: { type: Number, default: 0 }
 }, { timestamps: true });
@@ -102,12 +116,24 @@ const VoiceReportSchema = new mongoose.Schema({
   houseNumber: { type: String, required: true },
   issueType: { type: String, enum: ["Garbage", "Water Leakage", "Other"], required: true },
   status: { type: String, default: "Pending" },
-  callSid: { type: String }, // Twilio unique ID
+  callSid: { type: String }, 
   timestamp: { type: Date, default: Date.now }
 }, { timestamps: true });
 
 if (mongoose.models.VoiceReport) delete mongoose.models.VoiceReport;
 export const VoiceReport = mongoose.model("VoiceReport", VoiceReportSchema);
+
+// ─── Voice Request Schema (Passthru) ───────────────────────────────────────
+const VoiceRequestSchema = new mongoose.Schema({
+  phone: { type: String, required: true },
+  type: { type: String, enum: ["water", "electricity", "food", "other"], required: true },
+  inputDigit: { type: String },
+  status: { type: String, default: "pending" },
+  timestamp: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+if (mongoose.models.VoiceRequest) delete mongoose.models.VoiceRequest;
+export const VoiceRequest = mongoose.model("VoiceRequest", VoiceRequestSchema);
 
 
 

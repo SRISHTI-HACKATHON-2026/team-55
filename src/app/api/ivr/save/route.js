@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase, VoiceReport } from "../../../../lib/db/mongoose";
+import { connectToDatabase, VoiceReport, VoiceRequest } from "../../../../lib/db/mongoose";
 
 export async function POST(request) {
   const { searchParams } = new URL(request.url);
@@ -37,11 +37,16 @@ export async function POST(request) {
 }
 
 export async function GET() {
-  // Admin utility to fetch voice reports
+  // Admin utility to fetch voice reports and passthru requests
   try {
     await connectToDatabase();
     const reports = await VoiceReport.find({}).sort({ createdAt: -1 });
-    return NextResponse.json({ reports });
+    const passthruRequests = await VoiceRequest.find({}).sort({ createdAt: -1 });
+    
+    return NextResponse.json({ 
+      reports,
+      passthruRequests 
+    });
   } catch (e) {
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }

@@ -31,6 +31,7 @@ export default function AdminPage() {
   const [communitySort, setCommunitySort] = useState("house"); // 'house' | 'score'
   const [isMounted, setIsMounted] = useState(false);
   const [voiceReports, setVoiceReports] = useState([]);
+  const [passthruRequests, setPassthruRequests] = useState([]);
   const [voiceLoading, setVoiceLoading] = useState(false);
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function AdminPage() {
       const res = await fetch("/api/ivr/save");
       const data = await res.json();
       setVoiceReports(data.reports || []);
+      setPassthruRequests(data.passthruRequests || []);
     } catch (e) { console.error(e); }
     finally { setVoiceLoading(false); }
   };
@@ -667,27 +669,59 @@ export default function AdminPage() {
 
             {voiceLoading ? (
               <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-amber-500" /></div>
-            ) : voiceReports.length === 0 ? (
+            ) : (voiceReports.length === 0 && passthruRequests.length === 0) ? (
               <div className="text-center py-10 text-slate-400 italic">No voice reports received yet.</div>
             ) : (
-              <div className="flex flex-col gap-3">
-                {voiceReports.map(report => (
-                  <div key={report._id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-lg font-black text-slate-700 border border-slate-100">
-                        {report.houseNumber}
+              <div className="flex flex-col gap-6">
+                {/* Manual Voice Reports (House Number based) */}
+                {voiceReports.length > 0 && (
+                  <div className="flex flex-col gap-3">
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">Manual Issue Reports</p>
+                    {voiceReports.map(report => (
+                      <div key={report._id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-lg font-black text-slate-700 border border-slate-100">
+                            {report.houseNumber}
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-slate-800">{report.issueType}</h3>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(report.timestamp).toLocaleString()}</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="text-[10px] bg-amber-100 text-amber-700 font-black px-2 py-0.5 rounded-full uppercase">📞 Voice Log</span>
+                          <p className="text-[9px] text-slate-300 font-mono">SID: {report.callSid?.substring(0, 8)}...</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-bold text-slate-800">{report.issueType}</h3>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(report.timestamp).toLocaleString()}</p>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="text-[10px] bg-amber-100 text-amber-700 font-black px-2 py-0.5 rounded-full uppercase">📞 Voice Log</span>
-                      <p className="text-[9px] text-slate-300 font-mono">SID: {report.callSid?.substring(0, 8)}...</p>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {/* Passthru Requests (Menu based) */}
+                {passthruRequests.length > 0 && (
+                  <div className="flex flex-col gap-3">
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">Menu Passthru Requests (Exotel/Twilio)</p>
+                    {passthruRequests.map(req => (
+                      <div key={req._id} className="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-lg font-black text-indigo-700 border border-indigo-100">
+                            {req.inputDigit}
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-slate-800 uppercase">Request for {req.type}</h3>
+                            <p className="text-[10px] text-slate-400 font-bold tracking-widest flex items-center gap-1.5">
+                              <Phone className="w-3 h-3" /> {req.phone}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="text-[10px] bg-indigo-100 text-indigo-700 font-black px-2 py-0.5 rounded-full uppercase">⚡ Menu Input</span>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">{new Date(req.timestamp).toLocaleString()}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
