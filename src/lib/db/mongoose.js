@@ -141,6 +141,23 @@ const VoiceRequestSchema = new mongoose.Schema({
 if (mongoose.models.VoiceRequest) delete mongoose.models.VoiceRequest;
 export const VoiceRequest = mongoose.model("VoiceRequest", VoiceRequestSchema);
 
+// ─── IVR State Schema (Multi-step Flow) ────────────────────────────────────
+const IvrStateSchema = new mongoose.Schema({
+  phone: { type: String, required: true },
+  selectedService: { type: String, enum: ["water", "electricity", "food"] },
+  currentStep: { type: String, default: "main_menu" },
+  houseNumber: { type: String },
+  waterQuantity: { type: Number },
+  electricityBill: { type: Number },
+  preparedTime: { type: String },
+  servings: { type: Number },
+  status: { type: String, enum: ["in-progress", "completed", "failed"], default: "in-progress" },
+  updatedAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+if (mongoose.models.IvrState) delete mongoose.models.IvrState;
+export const IvrState = mongoose.model("IvrState", IvrStateSchema);
+
 
 
 
