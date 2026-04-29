@@ -56,7 +56,7 @@ export default function AdminPage() {
   const fetchVoiceReports = async () => {
     setVoiceLoading(true);
     try {
-      const res = await fetch("/api/ivr/save");
+      const res = await fetch("/api/admin/ivr");
       const data = await res.json();
       setVoiceReports(data.reports || []);
     } catch (e) { console.error(e); }
@@ -691,19 +691,56 @@ export default function AdminPage() {
             ) : (
               <div className="flex flex-col gap-3">
                 {voiceReports.map(report => (
-                  <div key={report._id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-lg font-black text-slate-700 border border-slate-100">
-                        {report.houseNumber}
+                  <div key={report._id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-lg font-black text-slate-700 border border-slate-100 uppercase">
+                          {report.houseNumber || "?"}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-slate-800 capitalize">{report.selectedService} Report</h3>
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase ${
+                              report.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                            }`}>
+                              {report.status}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(report.updatedAt).toLocaleString()}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-bold text-slate-800">{report.issueType}</h3>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(report.timestamp).toLocaleString()}</p>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="text-[10px] bg-slate-200 text-slate-600 font-black px-2 py-0.5 rounded-full uppercase">📞 {report.phone}</span>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="text-[10px] bg-amber-100 text-amber-700 font-black px-2 py-0.5 rounded-full uppercase">📞 Voice Log</span>
-                      <p className="text-[9px] text-slate-300 font-mono">SID: {report.callSid?.substring(0, 8)}...</p>
+                    
+                    {/* Rich Data Display */}
+                    <div className="bg-white rounded-xl p-3 border border-slate-100 grid grid-cols-2 gap-3">
+                      {report.selectedService === 'water' && (
+                        <div className="col-span-2">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Water Quantity Required</p>
+                          <p className="text-lg font-black text-sky-600">{report.waterQuantity} Liters</p>
+                        </div>
+                      )}
+                      {report.selectedService === 'electricity' && (
+                        <div className="col-span-2">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Monthly Electricity Bill</p>
+                          <p className="text-lg font-black text-amber-600">₹{report.electricityBill}</p>
+                        </div>
+                      )}
+                      {report.selectedService === 'food' && (
+                        <>
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Prepared Time</p>
+                            <p className="text-base font-black text-emerald-600">{report.preparedTime}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Servings</p>
+                            <p className="text-base font-black text-emerald-600">{report.servings} People</p>
+                          </div>
+                        </>
+                      )}
+                      {!report.selectedService && <p className="text-xs text-slate-400 italic col-span-2">Incomplete session: No service selected.</p>}
                     </div>
                   </div>
                 ))}
