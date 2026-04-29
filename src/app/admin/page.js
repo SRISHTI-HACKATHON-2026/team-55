@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import {
-  LayoutList, Droplet, Trash2, Box, ChevronDown, ChevronUp,
-  MapPin, ExternalLink, Activity, Users, Home, Phone, Mail,
-  User, Star, Search, UserX
+  LayoutList, Droplet, Trash2, Box, CheckCircle2, MapPin, ExternalLink, Activity, Users, Home, Phone, Mail,
+  User, Star, Search, UserX, Mic, Volume2
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import {
@@ -20,14 +20,23 @@ const MiniMap = dynamic(() => import("../../components/MiniMap"), {
 
 export default function AdminPage() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("reports"); // 'reports' | 'community'
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
   const [reports, setReports] = useState([]);
   const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [residentsLoading, setResidentsLoading] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [communitySort, setCommunitySort] = useState("house"); // 'house' | 'score'
   const [isMounted, setIsMounted] = useState(false);
+  const [voiceReports, setVoiceReports] = useState([]);
+  const [voiceLoading, setVoiceLoading] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -37,8 +46,20 @@ export default function AdminPage() {
   useEffect(() => {
     if (activeTab === "community") {
       fetchResidents(); // Always refresh on tab switch
+    } else if (activeTab === "voice") {
+      fetchVoiceReports();
     }
   }, [activeTab]);
+
+  const fetchVoiceReports = async () => {
+    setVoiceLoading(true);
+    try {
+      const res = await fetch("/api/ivr/save");
+      const data = await res.json();
+      setVoiceReports(data.reports || []);
+    } catch (e) { console.error(e); }
+    finally { setVoiceLoading(false); }
+  };
 
   const fetchReports = async () => {
     try {
@@ -169,10 +190,20 @@ export default function AdminPage() {
   }));
 
   // Filtered residents by search
-  const filteredResidents = residents.filter(r => {
-    const q = searchQuery.toLowerCase();
-    return !q || r.name?.toLowerCase().includes(q) || r.houseNumber?.toLowerCase().includes(q) || r.email?.toLowerCase().includes(q);
-  });
+  const filteredResidents = residents
+    .filter(r => {
+      const q = searchQuery.toLowerCase();
+      return !q || r.name?.toLowerCase().includes(q) || r.houseNumber?.toLowerCase().includes(q) || r.email?.toLowerCase().includes(q);
+    })
+    .sort((a, b) => {
+      if (communitySort === "score") {
+        return (b.trustScore || 0) - (a.trustScore || 0);
+      }
+      // Default: House number sort
+      const ha = a.houseNumber || "";
+      const hb = b.houseNumber || "";
+      return ha.localeCompare(hb, undefined, { numeric: true });
+    });
 
   // Summarize family stats
   const totalResidents = residents.length;
@@ -297,6 +328,12 @@ export default function AdminPage() {
           <Users className="w-4 h-4" /> Community
           {totalResidents > 0 && <span className="bg-indigo-100 text-indigo-600 text-[10px] font-black px-1.5 py-0.5 rounded-full">{totalResidents}</span>}
         </button>
+        <button onClick={() => setActiveTab("voice")}
+          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+            activeTab === "voice" ? "bg-white shadow text-amber-700" : "text-slate-500 hover:bg-slate-700"}`}>
+          <Mic className="w-4 h-4" /> Voice
+          {voiceReports.length > 0 && <span className="bg-amber-100 text-amber-600 text-[10px] font-black px-1.5 py-0.5 rounded-full">{voiceReports.length}</span>}
+        </button>
       </div>
 
       {/* ── REPORTS TAB ─────────────────────────────────────────────────────── */}
@@ -404,27 +441,44 @@ export default function AdminPage() {
             ))}
           </div>
 
-          {/* Search + Refresh */}
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search by name, house no. or email..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-              />
+          {/* Search + Refresh + Sort */}
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name, house no. or email..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                />
+              </div>
+              <button
+                onClick={fetchResidents}
+                disabled={residentsLoading}
+                className="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-sm transition disabled:opacity-50 flex items-center gap-2"
+              >
+                {residentsLoading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : "🔄"}
+              </button>
             </div>
-            <button
-              onClick={fetchResidents}
-              disabled={residentsLoading}
-              className="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-sm transition disabled:opacity-50 flex items-center gap-2"
-            >
-              {residentsLoading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : "🔄"}
-            </button>
+            
+            <div className="flex gap-2 bg-slate-100 p-1 rounded-xl">
+              <button 
+                onClick={() => setCommunitySort("house")}
+                className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${communitySort === 'house' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-400'}`}
+              >
+                🔢 Sort by House
+              </button>
+              <button 
+                onClick={() => setCommunitySort("score")}
+                className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${communitySort === 'score' ? 'bg-white shadow-sm text-amber-600' : 'text-slate-400'}`}
+              >
+                🏆 Sort by Score
+              </button>
+            </div>
           </div>
 
           {/* Residents List */}
@@ -449,7 +503,7 @@ export default function AdminPage() {
           ) : (
             <div className="flex flex-col gap-3">
               <p className="text-xs text-slate-400 font-bold ml-2 uppercase tracking-widest">
-                {filteredResidents.length} household{filteredResidents.length !== 1 ? "s" : ""} &middot; Sorted by House No.
+                {filteredResidents.length} household{filteredResidents.length !== 1 ? "s" : ""} &middot; {communitySort === 'score' ? 'Ranked by XP' : 'Sorted by House No.'}
               </p>
               {filteredResidents.map((resident) => {
                 const isOpen = expandedId === resident._id;
@@ -600,6 +654,48 @@ export default function AdminPage() {
               })}
             </div>
           )}
+        </div>
+      )}
+      {/* ── VOICE TAB ───────────────────────────────────────────────────────── */}
+      {activeTab === "voice" && (
+        <div className="w-full flex flex-col gap-6 animate-fade-in">
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-3 border-b border-slate-50 pb-4 mb-4">
+              <div className="p-2 bg-amber-100 rounded-xl text-amber-600">
+                <Volume2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-slate-800">IVR Voice Reports</h2>
+                <p className="text-sm text-slate-500 font-medium">Reports received via automated phone calls</p>
+              </div>
+            </div>
+
+            {voiceLoading ? (
+              <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-amber-500" /></div>
+            ) : voiceReports.length === 0 ? (
+              <div className="text-center py-10 text-slate-400 italic">No voice reports received yet.</div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {voiceReports.map(report => (
+                  <div key={report._id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-lg font-black text-slate-700 border border-slate-100">
+                        {report.houseNumber}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-800">{report.issueType}</h3>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(report.timestamp).toLocaleString()}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-[10px] bg-amber-100 text-amber-700 font-black px-2 py-0.5 rounded-full uppercase">📞 Voice Log</span>
+                      <p className="text-[9px] text-slate-300 font-mono">SID: {report.callSid?.substring(0, 8)}...</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

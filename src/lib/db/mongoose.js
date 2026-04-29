@@ -45,6 +45,7 @@ const UserSchema = new mongoose.Schema(
       female: { type: Number, default: 0 },
       other:  { type: Number, default: 0 },
     },
+    averageElectricityBill: { type: Number, default: 0 }, // Baseline units/amount
   },
   { timestamps: true }
 );
@@ -71,4 +72,43 @@ const ReportSchema = new mongoose.Schema({
 
 if (mongoose.models.Report) delete mongoose.models.Report;
 export const Report = mongoose.model("Report", ReportSchema);
+
+// ─── Water Usage Schema ──────────────────────────────────────────────────────
+const WaterUsageSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  amount: { type: Number, required: true }, // Liters used
+  limit: { type: Number, required: true },  // Calculated limit for that day
+  date: { type: Date, default: Date.now },
+  scoreImpact: { type: Number, default: 0 } // Points gained or lost
+}, { timestamps: true });
+
+if (mongoose.models.WaterUsage) delete mongoose.models.WaterUsage;
+export const WaterUsage = mongoose.model("WaterUsage", WaterUsageSchema);
+
+// ─── Electricity Usage Schema ────────────────────────────────────────────────
+const ElectricityUsageSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  units: { type: Number, required: true }, // Current month units
+  previousAverage: { type: Number, required: true }, // Baseline at time of entry
+  date: { type: Date, default: Date.now },
+  scoreImpact: { type: Number, default: 0 }
+}, { timestamps: true });
+
+if (mongoose.models.ElectricityUsage) delete mongoose.models.ElectricityUsage;
+export const ElectricityUsage = mongoose.model("ElectricityUsage", ElectricityUsageSchema);
+
+// ─── Voice Report Schema (IVR) ─────────────────────────────────────────────
+const VoiceReportSchema = new mongoose.Schema({
+  houseNumber: { type: String, required: true },
+  issueType: { type: String, enum: ["Garbage", "Water Leakage", "Other"], required: true },
+  status: { type: String, default: "Pending" },
+  callSid: { type: String }, // Twilio unique ID
+  timestamp: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+if (mongoose.models.VoiceReport) delete mongoose.models.VoiceReport;
+export const VoiceReport = mongoose.model("VoiceReport", VoiceReportSchema);
+
+
+
 

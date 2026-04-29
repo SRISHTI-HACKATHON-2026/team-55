@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { Droplet, Trash2, Box, CheckCircle2, MapPin, Loader2, Navigation, Clock, Trophy, Map as MapIcon, Award } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Droplet, Trash2, Box, CheckCircle2, MapPin, Loader2, Navigation, Clock, Trophy, Map as MapIcon, Award, ShieldAlert, AlertTriangle, Zap, TrendingDown } from "lucide-react";
 import { db } from "../lib/db/dexie";
 import SyncService from "../components/SyncService";
 import dynamic from "next/dynamic";
@@ -16,8 +16,14 @@ export default function ResidentPage() {
   const [redirecting, setRedirecting] = useState(false);
   
   // Tab Navigation
-  const [activeTab, setActiveTab] = useState("report"); // 'report', 'history', 'leaderboard'
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState("report"); 
   
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
+
   // Data States
   const [myReports, setMyReports] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -365,6 +371,18 @@ export default function ResidentPage() {
         >
           <Trophy className="w-4 h-4" /> Leaderboard
         </button>
+        <button 
+          onClick={() => setActiveTab("water")}
+          className={`flex-1 py-2 rounded-full text-[10px] font-black uppercase tracking-tighter transition-all flex flex-col justify-center items-center gap-0.5 ${activeTab === "water" ? "bg-sky-600 text-white shadow-md" : "text-slate-500"}`}
+        >
+          <Droplet className="w-3.5 h-3.5" /> Water
+        </button>
+        <button 
+          onClick={() => setActiveTab("electricity")}
+          className={`flex-1 py-2 rounded-full text-[10px] font-black uppercase tracking-tighter transition-all flex flex-col justify-center items-center gap-0.5 ${activeTab === "electricity" ? "bg-amber-600 text-white shadow-md" : "text-slate-500"}`}
+        >
+          <Zap className="w-3.5 h-3.5" /> Power
+        </button>
       </div>
 
       {activeTab === "report" && (
@@ -658,6 +676,7 @@ export default function ResidentPage() {
                     </div>
                     <div>
                       <p className="font-bold text-slate-800">{user.name}</p>
+                      {user.houseNumber && <p className="text-[10px] text-slate-400 font-bold uppercase">House: {user.houseNumber}</p>}
                     </div>
                   </div>
                   <div className="text-right">
@@ -673,6 +692,262 @@ export default function ResidentPage() {
         </div>
       )}
 
+      {activeTab === "water" && (
+        <WaterManagement user={session?.user} />
+      )}
+
+      {activeTab === "electricity" && (
+        <ElectricityManagement user={session?.user} />
+      )}
     </div>
   );
 }
+
+// ─── Electricity Management Component ───────────────────────────────────────
+function ElectricityManagement({ user }) {
+  const [units, setUnits] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [average, setAverage] = useState(0);
+  const [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch("/api/electricity-usage");
+      const data = await res.json();
+      setHistory(data.history || []);
+      setAverage(data.currentAverage || 0);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleLogUsage = async (e) => {
+    e.preventDefault();
+    if (!units || units <= 0) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/electricity-usage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ units: parseFloat(units) })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessage({ type: data.usage.scoreImpact >= 0 ? "success" : "warning", text: data.message });
+        setUnits("");
+        fetchHistory();
+      }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  return (
+    <div className="w-full flex flex-col gap-6 animate-fade-in pb-10">
+      <div className="text-center mb-2 mt-4">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center justify-center gap-2">
+          <Zap className="w-8 h-8 text-amber-500" /> Power Tracking
+        </h1>
+        <p className="text-slate-500 mt-2 font-medium">EcoLedger AI Electricity Conservation</p>
+      </div>
+
+      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
+        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-start gap-3">
+          <TrendingDown className="w-6 h-6 text-amber-600 mt-1" />
+          <div>
+            <h3 className="text-amber-800 font-bold">Conservation Logic</h3>
+            <p className="text-amber-700 text-xs mt-1">
+              Current Bill is compared against your **Monthly Average ({average.toFixed(1)} units)**. 
+              Stay below average to earn **+25 XP**. 
+              Exceeding it deducts **-30 XP**.
+            </p>
+          </div>
+        </div>
+
+        {message && (
+          <div className={`p-4 rounded-2xl text-sm font-bold flex items-center gap-2 ${
+            message.type === "success" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+          }`}>
+            {message.type === "success" ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+            {message.text}
+          </div>
+        )}
+
+        <form onSubmit={handleLogUsage} className="flex flex-col gap-4">
+          <div>
+            <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1 mb-1 block">Current Month Usage (Units)</label>
+            <div className="relative">
+              <Zap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-400" />
+              <input 
+                type="number" 
+                value={units}
+                onChange={(e) => setUnits(e.target.value)}
+                placeholder="e.g. 150"
+                required
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-amber-500 outline-none transition"
+              />
+            </div>
+          </div>
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full bg-amber-600 hover:bg-amber-700 text-white font-black py-3.5 rounded-2xl transition shadow-lg shadow-amber-600/20 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Log Monthly Bill"}
+          </button>
+        </form>
+      </div>
+
+      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
+        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <Clock className="w-5 h-5 text-slate-400" /> Billing History
+        </h3>
+        <div className="flex flex-col gap-3">
+          {history.length === 0 ? (
+            <p className="text-slate-400 italic text-sm text-center py-4">No electricity logs yet.</p>
+          ) : (
+            history.map((log) => (
+              <div key={log._id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div>
+                  <p className="text-sm font-bold text-slate-800">{log.units} Units</p>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Avg was {log.previousAverage} &middot; {new Date(log.date).toLocaleDateString()}</p>
+                </div>
+                <div className={`px-3 py-1 rounded-full text-xs font-black ${
+                  log.scoreImpact > 0 ? "bg-emerald-100 text-emerald-700" : log.scoreImpact < 0 ? "bg-rose-100 text-rose-700" : "bg-slate-200 text-slate-600"
+                }`}>
+                  {log.scoreImpact > 0 ? "+" : ""}{log.scoreImpact} XP
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Water Management Component ──────────────────────────────────────────────
+function WaterManagement({ user }) {
+  const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch("/api/water-usage");
+      const data = await res.json();
+      setHistory(data.history || []);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleLogUsage = async (e) => {
+    e.preventDefault();
+    if (!amount || amount <= 0) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/water-usage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: parseFloat(amount) })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessage({ type: data.scoreImpact > 0 ? "success" : "warning", text: data.message });
+        setAmount("");
+        fetchHistory();
+      }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  return (
+    <div className="w-full flex flex-col gap-6 animate-fade-in pb-10">
+      <div className="text-center mb-2 mt-4">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center justify-center gap-2">
+          <Droplet className="w-8 h-8 text-sky-500" /> Water Management
+        </h1>
+        <p className="text-slate-500 mt-2 font-medium">EcoLedger AI Family Water Savings</p>
+      </div>
+
+      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
+        <div className="bg-sky-50 border border-sky-100 rounded-2xl p-4">
+          <h3 className="text-sky-800 font-bold flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5" /> Daily Limit Logic
+          </h3>
+          <p className="text-sky-700 text-sm mt-1">
+            Limit = 3 Liters per family member. 
+            Keep usage within limit to earn **+10 XP**. 
+            Exceeding limit results in **-15 XP**.
+          </p>
+        </div>
+
+        {message && (
+          <div className={`p-4 rounded-2xl text-sm font-bold flex items-center gap-2 ${
+            message.type === "success" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+          }`}>
+            {message.type === "success" ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+            {message.text}
+          </div>
+        )}
+
+        <form onSubmit={handleLogUsage} className="flex flex-col gap-4">
+          <div>
+            <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1 mb-1 block">Log Today's Water Usage (Liters)</label>
+            <div className="relative">
+              <Droplet className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-sky-400" />
+              <input 
+                type="number" 
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="e.g. 12"
+                required
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-sky-500 outline-none transition"
+              />
+            </div>
+          </div>
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full bg-sky-600 hover:bg-sky-700 text-white font-black py-3.5 rounded-2xl transition shadow-lg shadow-sky-600/20 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Log Usage & Update Score"}
+          </button>
+        </form>
+      </div>
+
+      {/* History List */}
+      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
+        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <Clock className="w-5 h-5 text-slate-400" /> Recent Activity
+        </h3>
+        <div className="flex flex-col gap-3">
+          {history.length === 0 ? (
+            <p className="text-slate-400 italic text-sm text-center py-4">No water logs yet.</p>
+          ) : (
+            history.map((log) => (
+              <div key={log._id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div>
+                  <p className="text-sm font-bold text-slate-800">{log.amount} Liters Used</p>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{new Date(log.date).toLocaleDateString()}</p>
+                </div>
+                <div className={`px-3 py-1 rounded-full text-xs font-black ${
+                  log.scoreImpact > 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                }`}>
+                  {log.scoreImpact > 0 ? "+" : ""}{log.scoreImpact} XP
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
