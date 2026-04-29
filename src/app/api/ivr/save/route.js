@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase, VoiceReport } from "../../../lib/db/mongoose";
+import { connectToDatabase, VoiceReport } from "../../../../lib/db/mongoose";
 
 export async function POST(request) {
   const { searchParams } = new URL(request.url);

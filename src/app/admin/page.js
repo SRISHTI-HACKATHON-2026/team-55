@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import { useUI } from "../../components/UIProvider";
 import {
   LayoutList, Droplet, Trash2, Box, CheckCircle2, MapPin, ExternalLink, Activity, Users, Home, Phone, Mail,
-  User, Star, Search, UserX, Mic, Volume2
+  User, Star, Search, UserX, Mic, Volume2, ChevronDown, ChevronUp, Loader2
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import {
@@ -20,13 +21,7 @@ const MiniMap = dynamic(() => import("../../components/MiniMap"), {
 
 export default function AdminPage() {
   const { data: session } = useSession();
-  const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState("reports"); // 'reports' | 'community'
-
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (tab) setActiveTab(tab);
-  }, [searchParams]);
+  const { activeTab, setActiveTab } = useUI();
   const [reports, setReports] = useState([]);
   const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -358,10 +353,10 @@ export default function AdminPage() {
             {reports.length > 0 && isMounted && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Pie Chart */}
-                <div className="w-full flex flex-col" style={{ height: '220px', minWidth: 0 }}>
+                <div className="w-full flex flex-col min-w-0">
                   <p className="text-xs font-bold text-slate-400 uppercase mb-2 text-center">Issue Distribution</p>
-                  <div className="flex-1 w-full h-full" style={{ minHeight: 0, minWidth: 0 }}>
-                    <ResponsiveContainer width="100%" height="100%">
+                  <div className="w-full">
+                    <ResponsiveContainer width="100%" aspect={2} debounce={300}>
                       <PieChart>
                         <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={5} dataKey="value">
                           {pieData.map((e, i) => <Cell key={i} fill={e.color} />)}
@@ -372,10 +367,10 @@ export default function AdminPage() {
                   </div>
                 </div>
                 {/* Bar Chart */}
-                <div className="w-full flex flex-col" style={{ height: '220px', minWidth: 0 }}>
+                <div className="w-full flex flex-col min-w-0">
                   <p className="text-xs font-bold text-slate-400 uppercase mb-2 text-center">7-Day Activity</p>
-                  <div className="flex-1 w-full h-full" style={{ minHeight: 0, minWidth: 0 }}>
-                    <ResponsiveContainer width="100%" height="100%">
+                  <div className="w-full">
+                    <ResponsiveContainer width="100%" aspect={2} debounce={300}>
                       <BarChart data={barData}>
                         <XAxis dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                         <RechartsTooltip cursor={{ fill: "#f8fafc" }} contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} />

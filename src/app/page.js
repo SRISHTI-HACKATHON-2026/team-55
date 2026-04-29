@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useUI } from "../components/UIProvider";
 import { Droplet, Trash2, Box, CheckCircle2, MapPin, Loader2, Navigation, Clock, Trophy, Map as MapIcon, Award, ShieldAlert, AlertTriangle, Zap, TrendingDown } from "lucide-react";
 import { db } from "../lib/db/dexie";
 import SyncService from "../components/SyncService";
@@ -14,15 +15,9 @@ export default function ResidentPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [redirecting, setRedirecting] = useState(false);
-  
-  // Tab Navigation
-  const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState("report"); 
-  
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (tab) setActiveTab(tab);
-  }, [searchParams]);
+
+  // Tab Navigation (Global State)
+  const { activeTab, setActiveTab } = useUI();
 
   // Data States
   const [myReports, setMyReports] = useState([]);
@@ -38,11 +33,11 @@ export default function ResidentPage() {
   const [aiClassification, setAiClassification] = useState(null); // { type, confidence, description, materialType }
   const [isClassifying, setIsClassifying] = useState(false);
   const [selectedType, setSelectedType] = useState(null); // null = user hasn't overridden AI pick
-  
+
   // Search states
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  
+
   // Default to Dharwad, Karnataka for the Hackathon presentation
   const [position, setPosition] = useState({ lat: 15.4589, lng: 75.0078 });
 
@@ -94,7 +89,7 @@ export default function ResidentPage() {
           const res = await fetch("/api/classify-image", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               imageBase64: compressed,
               lat: position.lat,
               lng: position.lng,
@@ -163,7 +158,7 @@ export default function ResidentPage() {
 
   const handleAcquireLocation = () => {
     setIsLocating(true);
-    
+
     if (!navigator.geolocation) {
       fallbackToIP();
       return;
@@ -181,7 +176,7 @@ export default function ResidentPage() {
         }
         fallbackToIP();
       },
-      { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 } 
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 }
     );
   };
 
@@ -192,7 +187,7 @@ export default function ResidentPage() {
       const apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY || "fm63BZNe6hXB2ad5Xaz5";
       const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(searchQuery)}.json?key=${apiKey}`);
       const data = await res.json();
-      
+
       if (data.features && data.features.length > 0) {
         const [lng, lat] = data.features[0].center;
         setPosition({ lat, lng });
@@ -209,9 +204,9 @@ export default function ResidentPage() {
 
   const handleReport = async (baseType) => {
     setIsLocating(true);
-    
+
     const type = baseType === "Material Waste" ? `Material Waste (${materialType})` : baseType;
-    
+
     try {
       const report = {
         localId: crypto.randomUUID(),
@@ -299,7 +294,7 @@ export default function ResidentPage() {
           {/* Report Summary */}
           <div className="p-5 flex flex-col gap-3">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">What You Reported</h3>
-            
+
             {/* Issue Type */}
             <div className={`${typeColor} text-white px-4 py-3 rounded-2xl flex items-center gap-3`}>
               <span className="text-2xl">{typeIcon}</span>
@@ -337,9 +332,9 @@ export default function ResidentPage() {
 
             <p className="text-center text-xs text-slate-400 mt-1">Opening your History tab in a moment...</p>
             <div className="flex gap-1.5 justify-center">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{animationDelay: "0ms"}}></div>
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{animationDelay: "150ms"}}></div>
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{animationDelay: "300ms"}}></div>
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
             </div>
           </div>
         </div>
@@ -350,40 +345,9 @@ export default function ResidentPage() {
   return (
     <div className="flex flex-col gap-6 items-center w-full animate-fade-in pb-16">
       <SyncService />
-      
+
       {/* Tab Navigation */}
-      <div className="w-full bg-white rounded-full p-1.5 shadow-sm border border-slate-100 flex items-center justify-between mt-2">
-        <button 
-          onClick={() => setActiveTab("report")}
-          className={`flex-1 py-2.5 rounded-full text-xs font-bold transition-all flex justify-center items-center gap-1.5 ${activeTab === "report" ? "bg-emerald-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}
-        >
-          <MapIcon className="w-4 h-4" /> Report
-        </button>
-        <button 
-          onClick={() => setActiveTab("history")}
-          className={`flex-1 py-2.5 rounded-full text-xs font-bold transition-all flex justify-center items-center gap-1.5 ${activeTab === "history" ? "bg-emerald-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}
-        >
-          <Clock className="w-4 h-4" /> History
-        </button>
-        <button 
-          onClick={() => setActiveTab("leaderboard")}
-          className={`flex-1 py-2.5 rounded-full text-xs font-bold transition-all flex justify-center items-center gap-1.5 ${activeTab === "leaderboard" ? "bg-emerald-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}
-        >
-          <Trophy className="w-4 h-4" /> Leaderboard
-        </button>
-        <button 
-          onClick={() => setActiveTab("water")}
-          className={`flex-1 py-2 rounded-full text-[10px] font-black uppercase tracking-tighter transition-all flex flex-col justify-center items-center gap-0.5 ${activeTab === "water" ? "bg-sky-600 text-white shadow-md" : "text-slate-500"}`}
-        >
-          <Droplet className="w-3.5 h-3.5" /> Water
-        </button>
-        <button 
-          onClick={() => setActiveTab("electricity")}
-          className={`flex-1 py-2 rounded-full text-[10px] font-black uppercase tracking-tighter transition-all flex flex-col justify-center items-center gap-0.5 ${activeTab === "electricity" ? "bg-amber-600 text-white shadow-md" : "text-slate-500"}`}
-        >
-          <Zap className="w-3.5 h-3.5" /> Power
-        </button>
-      </div>
+
 
       {activeTab === "report" && (
         <div className="w-full flex flex-col gap-6 animate-fade-in">
@@ -407,7 +371,7 @@ export default function ResidentPage() {
               <label className="text-sm font-semibold text-slate-700 ml-1 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-emerald-600" /> Exact Location
               </label>
-              <button 
+              <button
                 onClick={handleAcquireLocation}
                 className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 rounded-full font-bold flex items-center gap-1 transition"
               >
@@ -418,15 +382,15 @@ export default function ResidentPage() {
 
             {/* Address Search Bar */}
             <div className="flex gap-2 mb-3">
-              <input 
-                type="text" 
-                placeholder="Search your address or landmark..." 
+              <input
+                type="text"
+                placeholder="Search your address or landmark..."
                 className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearchAddress()}
               />
-              <button 
+              <button
                 onClick={handleSearchAddress}
                 disabled={isSearching}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition disabled:opacity-50"
@@ -434,7 +398,7 @@ export default function ResidentPage() {
                 {isSearching ? "Searching" : "Search"}
               </button>
             </div>
-            
+
             <LocationPicker position={position} onPositionChange={setPosition} />
           </div>
 
@@ -475,26 +439,23 @@ export default function ResidentPage() {
                     </p>
                     <div className="flex items-center gap-2">
                       {aiClassification.severity && (
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                          aiClassification.severity === 'Severe' ? 'bg-rose-100 text-rose-700' :
-                          aiClassification.severity === 'Moderate' ? 'bg-amber-100 text-amber-700' :
-                          'bg-emerald-100 text-emerald-700'
-                        }`}>{aiClassification.severity}</span>
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${aiClassification.severity === 'Severe' ? 'bg-rose-100 text-rose-700' :
+                            aiClassification.severity === 'Moderate' ? 'bg-amber-100 text-amber-700' :
+                              'bg-emerald-100 text-emerald-700'
+                          }`}>{aiClassification.severity}</span>
                       )}
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        aiClassification.confidence >= 70 ? 'bg-emerald-100 text-emerald-700' :
-                        aiClassification.confidence >= 40 ? 'bg-amber-100 text-amber-700' :
-                        'bg-rose-100 text-rose-700'
-                      }`}>{aiClassification.confidence}% sure</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${aiClassification.confidence >= 70 ? 'bg-emerald-100 text-emerald-700' :
+                          aiClassification.confidence >= 40 ? 'bg-amber-100 text-amber-700' :
+                            'bg-rose-100 text-rose-700'
+                        }`}>{aiClassification.confidence}% sure</span>
                     </div>
                   </div>
 
                   {/* Detected type + short label */}
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs font-black px-3 py-1 rounded-full text-white ${
-                      aiClassification.type === 'Water Wastage' ? 'bg-sky-500' :
-                      aiClassification.type === 'Garbage' ? 'bg-stone-500' : 'bg-amber-500'
-                    }`}>{aiClassification.type}</span>
+                    <span className={`text-xs font-black px-3 py-1 rounded-full text-white ${aiClassification.type === 'Water Wastage' ? 'bg-sky-500' :
+                        aiClassification.type === 'Garbage' ? 'bg-stone-500' : 'bg-amber-500'
+                      }`}>{aiClassification.type}</span>
                     {aiClassification.shortLabel && (
                       <span className="text-sm font-semibold text-slate-700">{aiClassification.shortLabel}</span>
                     )}
@@ -522,7 +483,7 @@ export default function ResidentPage() {
                 Issue Description
                 {aiClassification && <span className="text-[10px] bg-purple-100 text-purple-600 font-bold px-2 py-0.5 rounded-full">🤖 AI Generated</span>}
               </label>
-              <textarea 
+              <textarea
                 className="w-full mt-2 p-3 bg-slate-50 rounded-2xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none resize-none text-sm leading-relaxed"
                 rows={aiClassification ? 5 : 3}
                 placeholder="Describe the issue... (AI will auto-fill when you take a photo)"
@@ -530,10 +491,10 @@ export default function ResidentPage() {
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
-            
+
             <div className="pt-4 border-t border-slate-100">
               <label className="text-sm font-semibold text-slate-700 ml-2">Specify Material (If reporting Material Waste)</label>
-              <select 
+              <select
                 className="w-full mt-2 p-3 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500"
                 value={materialType}
                 onChange={(e) => setMaterialType(e.target.value)}
@@ -552,14 +513,13 @@ export default function ResidentPage() {
             {aiClassification && (
               <p className="text-center text-xs text-purple-600 font-bold -mb-2">🤖 AI Suggestion highlighted below — tap to confirm or choose manually</p>
             )}
-            <button 
+            <button
               disabled={isLocating}
               onClick={() => handleReport("Water Wastage")}
-              className={`w-full relative group overflow-hidden text-white rounded-3xl p-6 flex items-center gap-6 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${
-                selectedType === "Water Wastage"
+              className={`w-full relative group overflow-hidden text-white rounded-3xl p-6 flex items-center gap-6 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${selectedType === "Water Wastage"
                   ? "bg-sky-600 ring-4 ring-sky-300 ring-offset-2 scale-105 shadow-sky-600/40"
                   : "bg-sky-500 hover:bg-sky-600 shadow-sky-500/20"
-              }`}
+                }`}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="bg-white/20 p-4 rounded-2xl">
@@ -571,14 +531,13 @@ export default function ResidentPage() {
               </div>
             </button>
 
-            <button 
+            <button
               disabled={isLocating}
               onClick={() => handleReport("Garbage")}
-              className={`w-full relative group overflow-hidden text-white rounded-3xl p-6 flex items-center gap-6 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${
-                selectedType === "Garbage"
+              className={`w-full relative group overflow-hidden text-white rounded-3xl p-6 flex items-center gap-6 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${selectedType === "Garbage"
                   ? "bg-stone-600 ring-4 ring-stone-300 ring-offset-2 scale-105 shadow-stone-600/40"
                   : "bg-stone-500 hover:bg-stone-600 shadow-stone-500/20"
-              }`}
+                }`}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="bg-white/20 p-4 rounded-2xl">
@@ -590,14 +549,13 @@ export default function ResidentPage() {
               </div>
             </button>
 
-            <button 
+            <button
               disabled={isLocating}
               onClick={() => handleReport("Material Waste")}
-              className={`w-full relative group overflow-hidden text-white rounded-3xl p-6 flex items-center gap-6 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${
-                selectedType === "Material Waste"
+              className={`w-full relative group overflow-hidden text-white rounded-3xl p-6 flex items-center gap-6 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${selectedType === "Material Waste"
                   ? "bg-amber-600 ring-4 ring-amber-300 ring-offset-2 scale-105 shadow-amber-600/40"
                   : "bg-amber-500 hover:bg-amber-600 shadow-amber-500/20"
-              }`}
+                }`}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="bg-white/20 p-4 rounded-2xl">
@@ -626,7 +584,7 @@ export default function ResidentPage() {
           </div>
 
           <h2 className="text-lg font-bold text-slate-800 ml-2 mt-2">Past Reports</h2>
-          
+
           {isLoadingData ? (
             <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>
           ) : myReports.length === 0 ? (
@@ -665,7 +623,7 @@ export default function ResidentPage() {
           </div>
 
           {isLoadingData ? (
-             <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>
+            <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>
           ) : (
             <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
               {leaderboard.map((user, idx) => (
@@ -759,17 +717,16 @@ function ElectricityManagement({ user }) {
           <div>
             <h3 className="text-amber-800 font-bold">Conservation Logic</h3>
             <p className="text-amber-700 text-xs mt-1">
-              Current Bill is compared against your **Monthly Average ({average.toFixed(1)} units)**. 
-              Stay below average to earn **+25 XP**. 
+              Current Bill is compared against your **Monthly Average ({average.toFixed(1)} units)**.
+              Stay below average to earn **+25 XP**.
               Exceeding it deducts **-30 XP**.
             </p>
           </div>
         </div>
 
         {message && (
-          <div className={`p-4 rounded-2xl text-sm font-bold flex items-center gap-2 ${
-            message.type === "success" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
-          }`}>
+          <div className={`p-4 rounded-2xl text-sm font-bold flex items-center gap-2 ${message.type === "success" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+            }`}>
             {message.type === "success" ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
             {message.text}
           </div>
@@ -780,8 +737,8 @@ function ElectricityManagement({ user }) {
             <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1 mb-1 block">Current Month Usage (Units)</label>
             <div className="relative">
               <Zap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-400" />
-              <input 
-                type="number" 
+              <input
+                type="number"
                 value={units}
                 onChange={(e) => setUnits(e.target.value)}
                 placeholder="e.g. 150"
@@ -790,8 +747,8 @@ function ElectricityManagement({ user }) {
               />
             </div>
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
             className="w-full bg-amber-600 hover:bg-amber-700 text-white font-black py-3.5 rounded-2xl transition shadow-lg shadow-amber-600/20 disabled:opacity-50 flex items-center justify-center gap-2"
           >
@@ -814,9 +771,8 @@ function ElectricityManagement({ user }) {
                   <p className="text-sm font-bold text-slate-800">{log.units} Units</p>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Avg was {log.previousAverage} &middot; {new Date(log.date).toLocaleDateString()}</p>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-black ${
-                  log.scoreImpact > 0 ? "bg-emerald-100 text-emerald-700" : log.scoreImpact < 0 ? "bg-rose-100 text-rose-700" : "bg-slate-200 text-slate-600"
-                }`}>
+                <div className={`px-3 py-1 rounded-full text-xs font-black ${log.scoreImpact > 0 ? "bg-emerald-100 text-emerald-700" : log.scoreImpact < 0 ? "bg-rose-100 text-rose-700" : "bg-slate-200 text-slate-600"
+                  }`}>
                   {log.scoreImpact > 0 ? "+" : ""}{log.scoreImpact} XP
                 </div>
               </div>
@@ -882,16 +838,15 @@ function WaterManagement({ user }) {
             <ShieldAlert className="w-5 h-5" /> Daily Limit Logic
           </h3>
           <p className="text-sky-700 text-sm mt-1">
-            Limit = 3 Liters per family member. 
-            Keep usage within limit to earn **+10 XP**. 
+            Limit = 3 Liters per family member.
+            Keep usage within limit to earn **+10 XP**.
             Exceeding limit results in **-15 XP**.
           </p>
         </div>
 
         {message && (
-          <div className={`p-4 rounded-2xl text-sm font-bold flex items-center gap-2 ${
-            message.type === "success" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
-          }`}>
+          <div className={`p-4 rounded-2xl text-sm font-bold flex items-center gap-2 ${message.type === "success" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+            }`}>
             {message.type === "success" ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
             {message.text}
           </div>
@@ -902,8 +857,8 @@ function WaterManagement({ user }) {
             <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1 mb-1 block">Log Today's Water Usage (Liters)</label>
             <div className="relative">
               <Droplet className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-sky-400" />
-              <input 
-                type="number" 
+              <input
+                type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="e.g. 12"
@@ -912,8 +867,8 @@ function WaterManagement({ user }) {
               />
             </div>
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
             className="w-full bg-sky-600 hover:bg-sky-700 text-white font-black py-3.5 rounded-2xl transition shadow-lg shadow-sky-600/20 disabled:opacity-50 flex items-center justify-center gap-2"
           >
@@ -937,9 +892,8 @@ function WaterManagement({ user }) {
                   <p className="text-sm font-bold text-slate-800">{log.amount} Liters Used</p>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{new Date(log.date).toLocaleDateString()}</p>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-black ${
-                  log.scoreImpact > 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
-                }`}>
+                <div className={`px-3 py-1 rounded-full text-xs font-black ${log.scoreImpact > 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                  }`}>
                   {log.scoreImpact > 0 ? "+" : ""}{log.scoreImpact} XP
                 </div>
               </div>
