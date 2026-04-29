@@ -22,12 +22,19 @@ export async function POST(request) {
       return NextResponse.json({ error: "Report not found" }, { status: 404 });
     }
 
-    // GAMIFICATION: Award +10 Trust Score to the reporter if the issue is successfully resolved!
-    if (newStatus === "Resolved" && updatedReport.reporterEmail) {
+    // GAMIFICATION: 
+    // - Award +10 Trust Score to the reporter if the issue is successfully resolved!
+    // - Deduct -10 Trust Score if the issue is flagged (denied/rejected) to prevent spam!
+    if (updatedReport.reporterEmail) {
       const { Resident } = require("../../../../lib/db/mongoose");
+      const scoreChange = newStatus === "Resolved" ? 10 : -10;
+      
       await Resident.findOneAndUpdate(
         { email: updatedReport.reporterEmail },
-        { $inc: { trustScore: 10 } }
+        { 
+          $inc: { trustScore: scoreChange },
+          $min: { trustScore: 0 } // Ensure score doesn't go below 0 if you want, or remove for negative rankings
+        }
       );
     }
 
