@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase, Report } from "../../../../lib/db/mongoose";
+import mongoose from "mongoose";
 
 export async function POST(request) {
   try {
@@ -26,15 +27,23 @@ export async function POST(request) {
     // - Award +10 Trust Score to the reporter if the issue is successfully resolved!
     // - Deduct -10 Trust Score if the issue is flagged (denied/rejected) to prevent spam!
     if (updatedReport.reporterEmail) {
-      const { Resident } = require("../../../../lib/db/mongoose");
+      // Access models from the global registry to avoid re-compilation or import issues
+      const ResidentModel = mongoose.models.Resident;
       const scoreChange = newStatus === "Resolved" ? 10 : -10;
       
-      await Resident.findOneAndUpdate(
+      console.log(`[GAMIFICATION] Updating trustScore for ${updatedReport.reporterEmail}: ${scoreChange} XP`);
+
+      await ResidentModel.findOneAndUpdate(
         { email: updatedReport.reporterEmail },
         { 
-          $inc: { trustScore: scoreChange },
-          $min: { trustScore: 0 } // Ensure score doesn't go below 0 if you want, or remove for negative rankings
+          $inc: { trustScore: scoreChange }
         }
+      );
+
+      // Ensure score doesn't drop below zero in a separate step to guarantee $inc worked
+      await ResidentModel.findOneAndUpdate(
+        { email: updatedReport.reporterEmail, trustScore: { $lt: 0 } },
+        { $set: { trustScore: 0 } }
       );
     }
 
