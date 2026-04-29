@@ -86,6 +86,8 @@ const ReportSchema = new mongoose.Schema({
   status: { type: String, enum: ["Pending", "Resolved", "Flagged"], default: "Pending" },
   imageUrl: { type: String },
   timestamp: { type: Date, default: Date.now },
+  votes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Resident" }],
+  voteCount: { type: Number, default: 0 },
 });
 
 if (mongoose.models.Report) delete mongoose.models.Report;

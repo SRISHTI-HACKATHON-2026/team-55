@@ -14,6 +14,7 @@ import {
   Mic, 
   LogOut, 
   Award,
+  Globe,
   Settings,
   HelpCircle,
   Menu,
@@ -40,6 +41,7 @@ export default function Sidebar() {
       ]
     : [
         { name: t("report_issue"), href: "/resident", tab: "report", icon: MapPin },
+        { name: t("community_feed"), href: "/resident", tab: "feed", icon: Globe },
         { name: t("water_usage"), href: "/resident", tab: "water", icon: Droplet },
         { name: t("power_tracker"), href: "/resident", tab: "electricity", icon: Zap },
         { name: t("leaderboard"), href: "/resident", tab: "leaderboard", icon: Award },

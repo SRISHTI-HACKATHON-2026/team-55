@@ -118,5 +118,11 @@
   "loading_pending_reports": "Loading pending reports...",
   "welcome_ecoledger": "Welcome to EcoLedger",
   "please_login_dashboard": "Please log in to access your dashboard.",
-  "login_now": "Log In Now"
+  "login_now": "Log In Now",
+  "community_feed": "Community Feed",
+  "community_feed_subtitle": "Collective monitoring of estate issues",
+  "upvote": "Upvote",
+  "voted": "Voted",
+  "no_community_reports": "No community reports available yet.",
+  "votes": "Votes"
 }
