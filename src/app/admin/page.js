@@ -7,7 +7,7 @@ import { useUI } from "../../components/UIProvider";
 import { useTranslation } from "react-i18next";
 import {
   LayoutList, Droplet, Trash2, Box, CheckCircle2, MapPin, ExternalLink, Activity, Users, Home, Phone, Mail,
-  User, Star, Search, UserX, Mic, Volume2, ChevronDown, ChevronUp, Loader2
+  User, Star, Search, UserX, Mic, Volume2, ChevronDown, ChevronUp, Loader2, Heart
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import {
@@ -167,9 +167,18 @@ export default function AdminPage() {
   // Analytics
   const pendingCount = reports.filter(r => r.status === "Pending").length;
   const resolvedCount = reports.filter(r => r.status === "Resolved").length;
-  const waterReports = reports.filter(r => r.type === "Water Wastage");
-  const garbageReports = reports.filter(r => r.type === "Garbage");
-  const materialReports = reports.filter(r => r.type?.startsWith("Material Waste"));
+
+  // Prioritize reports by vote count, then by timestamp (newest first)
+  const sortedReports = [...reports].sort((a, b) => {
+    if ((b.voteCount || 0) !== (a.voteCount || 0)) {
+      return (b.voteCount || 0) - (a.voteCount || 0);
+    }
+    return new Date(b.timestamp) - new Date(a.timestamp);
+  });
+
+  const waterReports = sortedReports.filter(r => r.type === "Water Wastage");
+  const garbageReports = sortedReports.filter(r => r.type === "Garbage");
+  const materialReports = sortedReports.filter(r => r.type?.startsWith("Material Waste"));
 
   const pieData = [
     { name: "Water", value: waterReports.length, color: "#0ea5e9" },
@@ -232,6 +241,11 @@ export default function AdminPage() {
             <span className={`text-xs font-bold px-3 py-1 rounded-full ${report.status === "Resolved" ? "bg-emerald-100 text-emerald-700" :
               report.status === "Flagged" ? "bg-rose-100 text-rose-700" :
                 "bg-amber-100 text-amber-700"}`}>{report.status === "Resolved" ? t("resolved") : report.status === "Pending" ? t("pending") : report.status}</span>
+            {(report.voteCount || 0) > 0 && (
+              <span className="text-[10px] bg-rose-50 text-rose-600 font-black px-2 py-0.5 rounded-full flex items-center gap-1 border border-rose-100">
+                <Heart className="w-2.5 h-2.5 fill-rose-600" /> {report.voteCount}
+              </span>
+            )}
             {report.imageUrl && <span className="text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded-full">📸 Photo</span>}
             {isExpanded ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
           </div>
