@@ -24,7 +24,7 @@ export default function Navigation() {
               </Link>
             )}
             <button 
-              onClick={() => signOut()}
+              onClick={() => signOut({ callbackUrl: "/login" })}
               className="text-sm font-semibold text-rose-600 hover:underline"
             >
               Sign Out

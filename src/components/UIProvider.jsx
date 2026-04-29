@@ -11,8 +11,13 @@ export function UIProvider({ children }) {
 
   // Set default tab based on role when session loads
   useEffect(() => {
-    if (session && !activeTab) {
-      setActiveTab(session.user.role === "admin" ? "reports" : "report");
+    if (session) {
+      if (!activeTab) {
+        setActiveTab(session.user.role === "admin" ? "reports" : "report");
+      }
+    } else {
+      // Clear tab state on logout to prevent crashes
+      setActiveTab("");
     }
   }, [session, activeTab]);
 
