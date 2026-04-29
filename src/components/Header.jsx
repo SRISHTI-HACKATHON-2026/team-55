@@ -89,8 +89,16 @@ export default function Header() {
           <span>EcoLedger</span>
           <ChevronRight className="w-3 h-3" />
           <span className="text-emerald-600">{isAdmin ? "Admin" : "Resident"}</span>
+          {activeTab && (
+            <>
+              <ChevronRight className="w-3 h-3" />
+              <span className="text-slate-500">{t(activeTab)}</span>
+            </>
+          )}
         </div>
-        <h1 className="text-xl font-black text-slate-800 tracking-tight">{pageTitle}</h1>
+        <h1 className="text-xl font-black text-slate-800 tracking-tight capitalize">
+          {activeTab ? t(activeTab) : pageTitle}
+        </h1>
       </div>
 
       {/* Global Actions */}

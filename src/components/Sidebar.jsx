@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useUI } from "./UIProvider";
 import { useTranslation } from "react-i18next";
@@ -26,6 +26,7 @@ import { useState } from "react";
 export default function Sidebar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
   const { activeTab, setActiveTab } = useUI();
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -57,9 +58,9 @@ export default function Sidebar() {
         onClick={() => {
           setActiveTab(item.tab);
           setIsOpen(false);
-          // If we are on a different page (e.g. from /admin to /), we should still use router
+          // Use Next.js router for smooth navigation
           if (pathname !== item.href) {
-            window.location.href = `${item.href}?tab=${item.tab}`;
+            router.push(`${item.href}?tab=${item.tab}`);
           }
         }}
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
