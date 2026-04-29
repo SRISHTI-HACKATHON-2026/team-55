@@ -1,28 +1,38 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 const UIContext = createContext();
+
+function UITabSyncer({ activeTab, setActiveTab, session }) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl) {
+      if (tabFromUrl !== activeTab) {
+        setActiveTab(tabFromUrl);
+      }
+    } else if (session && !activeTab) {
+      // Set default tab if none in URL
+      setActiveTab(session.user.role === "admin" ? "reports" : "report");
+    }
+  }, [searchParams, activeTab, setActiveTab, session]);
+
+  return null;
+}
 
 export function UIProvider({ children }) {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("");
 
-  // Set default tab based on role when session loads
-  useEffect(() => {
-    if (session) {
-      if (!activeTab) {
-        setActiveTab(session.user.role === "admin" ? "reports" : "report");
-      }
-    } else {
-      // Clear tab state on logout to prevent crashes
-      setActiveTab("");
-    }
-  }, [session, activeTab]);
-
   return (
     <UIContext.Provider value={{ activeTab, setActiveTab }}>
+      <Suspense fallback={null}>
+        <UITabSyncer activeTab={activeTab} setActiveTab={setActiveTab} session={session} />
+      </Suspense>
       {children}
     </UIContext.Provider>
   );
