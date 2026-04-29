@@ -10,27 +10,47 @@ export async function POST(request) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
     }
 
-    const operations = reports.map((report) => ({
-      updateOne: {
-        filter: { localId: report.localId || report.id.toString() },
-        update: {
-          $set: {
-            type: report.type,
-            description: report.description,
-            location: {
-              lat: report.lat,
-              lng: report.lng
+    const operations = [];
+    for (const report of reports) {
+      // 1. Duplicate check: Same type + Same area (within ~100m)
+      const latRange = 0.001; // ~111 meters
+      const lngRange = 0.001; 
+
+      const existing = await Report.findOne({
+        type: report.type,
+        status: "Pending",
+        "location.lat": { $gte: report.lat - latRange, $lte: report.lat + latRange },
+        "location.lng": { $gte: report.lng - lngRange, $lte: report.lng + lngRange },
+        localId: { $ne: report.localId } // Don't match itself
+      });
+
+      if (existing) {
+        console.log(`Duplicate report ignored: ${report.type} at ${report.lat}, ${report.lng}`);
+        continue; 
+      }
+
+      operations.push({
+        updateOne: {
+          filter: { localId: report.localId || report.id.toString() },
+          update: {
+            $set: {
+              type: report.type,
+              description: report.description,
+              location: {
+                lat: report.lat,
+                lng: report.lng
+              },
+              reporterName: report.reporterName,
+              reporterEmail: report.reporterEmail,
+              imageUrl: report.imageUrl,
+              status: "Pending",
+              timestamp: report.timestamp,
             },
-            reporterName: report.reporterName,
-            reporterEmail: report.reporterEmail,
-            imageUrl: report.imageUrl,
-            status: "Pending",
-            timestamp: report.timestamp,
           },
+          upsert: true,
         },
-        upsert: true,
-      },
-    }));
+      });
+    }
 
     if (operations.length > 0) {
       await Report.bulkWrite(operations);

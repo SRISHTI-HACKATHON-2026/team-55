@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useUI } from "./UIProvider";
+import { useTranslation } from "react-i18next";
 import { 
   LayoutDashboard, 
   MapPin, 
@@ -21,30 +22,31 @@ import {
 import { useState } from "react";
 
 export default function Sidebar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const pathname = usePathname();
   const { activeTab, setActiveTab } = useUI();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (!session) return null;
+  if (status !== "authenticated" || !session) return null;
 
   const isAdmin = session.user.role === "admin";
 
   const navItems = isAdmin 
     ? [
-        { name: "Reports Control", href: "/admin", tab: "reports", icon: LayoutDashboard },
-        { name: "Community", href: "/admin", tab: "community", icon: Users },
-        { name: "Voice Logs", href: "/admin", tab: "voice", icon: Mic },
+        { name: t("report_issue"), href: "/admin", tab: "reports", icon: LayoutDashboard },
+        { name: t("community"), href: "/admin", tab: "community", icon: Users },
+        { name: t("voice_logs"), href: "/admin", tab: "voice", icon: Mic },
       ]
     : [
-        { name: "Report Issue", href: "/", tab: "report", icon: MapPin },
-        { name: "Water Usage", href: "/", tab: "water", icon: Droplet },
-        { name: "Power Tracker", href: "/", tab: "electricity", icon: Zap },
-        { name: "Leaderboard", href: "/", tab: "leaderboard", icon: Award },
+        { name: t("report_issue"), href: "/resident", tab: "report", icon: MapPin },
+        { name: t("water_usage"), href: "/resident", tab: "water", icon: Droplet },
+        { name: t("power_tracker"), href: "/resident", tab: "electricity", icon: Zap },
+        { name: t("leaderboard"), href: "/resident", tab: "leaderboard", icon: Award },
       ];
 
   const NavLink = ({ item }) => {
-    const isActive = activeTab === item.tab;
+    const isActive = activeTab === item.tab && pathname === item.href;
     
     return (
       <button
@@ -108,10 +110,10 @@ export default function Sidebar() {
             
             <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 px-2">Support</p>
             <Link href="#" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-text-muted hover:bg-slate-100 hover:text-text-main transition-all">
-              <Settings className="w-5 h-5" /> Settings
+              <Settings className="w-5 h-5" /> {t("settings")}
             </Link>
             <Link href="#" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-text-muted hover:bg-slate-100 hover:text-text-main transition-all">
-              <HelpCircle className="w-5 h-5" /> Help Center
+              <HelpCircle className="w-5 h-5" /> {t("help_center")}
             </Link>
           </nav>
 
@@ -130,7 +132,7 @@ export default function Sidebar() {
               onClick={() => signOut()}
               className="w-full flex items-center justify-center gap-2 py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-sm font-bold transition-all border border-rose-100"
             >
-              <LogOut className="w-4 h-4" /> Sign Out
+              <LogOut className="w-4 h-4" /> {t("logout")}
             </button>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useUI } from "../../components/UIProvider";
+import { useTranslation } from "react-i18next";
 import {
   LayoutList, Droplet, Trash2, Box, CheckCircle2, MapPin, ExternalLink, Activity, Users, Home, Phone, Mail,
   User, Star, Search, UserX, Mic, Volume2, ChevronDown, ChevronUp, Loader2
@@ -22,6 +23,7 @@ const MiniMap = dynamic(() => import("../../components/MiniMap"), {
 export default function AdminPage() {
   const { data: session } = useSession();
   const { activeTab, setActiveTab } = useUI();
+  const { t } = useTranslation();
   const [reports, setReports] = useState([]);
   const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,6 @@ export default function AdminPage() {
   const [communitySort, setCommunitySort] = useState("house"); // 'house' | 'score'
   const [isMounted, setIsMounted] = useState(false);
   const [voiceReports, setVoiceReports] = useState([]);
-  const [passthruRequests, setPassthruRequests] = useState([]);
   const [voiceLoading, setVoiceLoading] = useState(false);
 
   useEffect(() => {
@@ -53,7 +54,6 @@ export default function AdminPage() {
       const res = await fetch("/api/ivr/save");
       const data = await res.json();
       setVoiceReports(data.reports || []);
-      setPassthruRequests(data.passthruRequests || []);
     } catch (e) { console.error(e); }
     finally { setVoiceLoading(false); }
   };
@@ -165,15 +165,15 @@ export default function AdminPage() {
   }
 
   // Analytics
-  const pendingCount  = reports.filter(r => r.status === "Pending").length;
+  const pendingCount = reports.filter(r => r.status === "Pending").length;
   const resolvedCount = reports.filter(r => r.status === "Resolved").length;
-  const waterReports    = reports.filter(r => r.type === "Water Wastage");
-  const garbageReports  = reports.filter(r => r.type === "Garbage");
+  const waterReports = reports.filter(r => r.type === "Water Wastage");
+  const garbageReports = reports.filter(r => r.type === "Garbage");
   const materialReports = reports.filter(r => r.type?.startsWith("Material Waste"));
 
   const pieData = [
-    { name: "Water",    value: waterReports.length,    color: "#0ea5e9" },
-    { name: "Garbage",  value: garbageReports.length,  color: "#57534e" },
+    { name: "Water", value: waterReports.length, color: "#0ea5e9" },
+    { name: "Garbage", value: garbageReports.length, color: "#57534e" },
     { name: "Material", value: materialReports.length, color: "#f59e0b" },
   ].filter(d => d.value > 0);
 
@@ -204,9 +204,9 @@ export default function AdminPage() {
 
   // Summarize family stats
   const totalResidents = residents.length;
-  const totalFamily    = residents.reduce((s, r) => s + (r.familySize || 0), 0);
-  const totalMale      = residents.reduce((s, r) => s + (r.familyGenders?.male || 0), 0);
-  const totalFemale    = residents.reduce((s, r) => s + (r.familyGenders?.female || 0), 0);
+  const totalFamily = residents.reduce((s, r) => s + (r.familySize || 0), 0);
+  const totalMale = residents.reduce((s, r) => s + (r.familyGenders?.male || 0), 0);
+  const totalFemale = residents.reduce((s, r) => s + (r.familyGenders?.female || 0), 0);
 
   // ── ReportCard component ──────────────────────────────────────────────────
   const ReportCard = ({ report }) => {
@@ -225,14 +225,13 @@ export default function AdminPage() {
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-800">{report.type}</h3>
-              <p className="text-sm text-slate-500">Reported by {report.reporterName}</p>
+              <p className="text-sm text-slate-500">{t("reported_by")} {report.reporterName}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap justify-end">
-            <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-              report.status === "Resolved" ? "bg-emerald-100 text-emerald-700" :
-              report.status === "Flagged"  ? "bg-rose-100 text-rose-700" :
-              "bg-amber-100 text-amber-700"}`}>{report.status}</span>
+            <span className={`text-xs font-bold px-3 py-1 rounded-full ${report.status === "Resolved" ? "bg-emerald-100 text-emerald-700" :
+              report.status === "Flagged" ? "bg-rose-100 text-rose-700" :
+                "bg-amber-100 text-amber-700"}`}>{report.status === "Resolved" ? t("resolved") : report.status === "Pending" ? t("pending") : report.status}</span>
             {report.imageUrl && <span className="text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded-full">📸 Photo</span>}
             {isExpanded ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
           </div>
@@ -276,7 +275,7 @@ export default function AdminPage() {
                 <a href={`https://www.google.com/maps?q=${report.location?.lat || 15.4589},${report.location?.lng || 75.0078}`}
                   target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition">
-                  <MapPin className="w-4 h-4" /> Open in Google Maps <ExternalLink className="w-3 h-3" />
+                  <MapPin className="w-4 h-4" /> {t("open_in_google_maps")} <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
             </div>
@@ -284,17 +283,17 @@ export default function AdminPage() {
               <div className="flex gap-2 w-full pt-4 border-t border-slate-200">
                 <button onClick={e => handleAction(report._id, "verify", e)}
                   className="flex-1 bg-emerald-600 text-white text-sm font-bold py-3 px-4 rounded-xl hover:bg-emerald-700 transition">
-                  ✅ Mark Resolved
+                  ✅ {t("mark_resolved")}
                 </button>
                 <button onClick={e => handleAction(report._id, "flag", e)}
                   className="flex-1 bg-rose-500 text-white text-sm font-bold py-3 px-4 rounded-xl hover:bg-rose-600 transition">
-                  🚩 Flag Issue
+                  🚩 {t("flag_issue")}
                 </button>
               </div>
             )}
             <button onClick={e => handleDeleteReport(report._id, e)}
               className="w-full mt-2 flex items-center justify-center gap-2 py-3 px-4 bg-slate-100 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-600 hover:text-rose-600 font-bold text-sm rounded-xl transition-all">
-              <Trash2 className="w-4 h-4" /> Remove Issue Report
+              <Trash2 className="w-4 h-4" /> {t("remove_issue_report")}
             </button>
           </div>
         )}
@@ -307,28 +306,25 @@ export default function AdminPage() {
       {/* Header */}
       <div className="text-center mb-2 mt-6">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center justify-center gap-2">
-          <LayoutList className="w-8 h-8 text-emerald-600" /> Admin Dashboard
+          <LayoutList className="w-8 h-8 text-emerald-600" /> {t("admin_dashboard")}
         </h1>
-        <p className="text-slate-500 mt-1 font-medium">EcoLedger — Dharwad Smart Civic System</p>
+        <p className="text-slate-500 mt-1 font-medium">{t("dharwad_smart_civic")}</p>
       </div>
 
       {/* Tab Navigation */}
       <div className="flex gap-2 bg-slate-100 p-1.5 rounded-2xl">
         <button onClick={() => setActiveTab("reports")}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-            activeTab === "reports" ? "bg-white shadow text-emerald-700" : "text-slate-500 hover:text-slate-700"}`}>
-          <Activity className="w-4 h-4" /> Reports
+          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === "reports" ? "bg-white shadow text-emerald-700" : "text-slate-500 hover:text-slate-700"}`}>
+          <Activity className="w-4 h-4" /> {t("reports")}
         </button>
         <button onClick={() => setActiveTab("community")}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-            activeTab === "community" ? "bg-white shadow text-indigo-700" : "text-slate-500 hover:text-slate-700"}`}>
-          <Users className="w-4 h-4" /> Community
+          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === "community" ? "bg-white shadow text-indigo-700" : "text-slate-500 hover:text-slate-700"}`}>
+          <Users className="w-4 h-4" /> {t("community")}
           {totalResidents > 0 && <span className="bg-indigo-100 text-indigo-600 text-[10px] font-black px-1.5 py-0.5 rounded-full">{totalResidents}</span>}
         </button>
         <button onClick={() => setActiveTab("voice")}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-            activeTab === "voice" ? "bg-white shadow text-amber-700" : "text-slate-500 hover:bg-slate-700"}`}>
-          <Mic className="w-4 h-4" /> Voice
+          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === "voice" ? "bg-white shadow text-amber-700" : "text-slate-500 hover:bg-slate-700"}`}>
+          <Mic className="w-4 h-4" /> {t("voice")}
           {voiceReports.length > 0 && <span className="bg-amber-100 text-amber-600 text-[10px] font-black px-1.5 py-0.5 rounded-full">{voiceReports.length}</span>}
         </button>
       </div>
@@ -340,25 +336,25 @@ export default function AdminPage() {
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col gap-6">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
               <Activity className="w-5 h-5 text-indigo-500" />
-              <h2 className="text-lg font-bold text-slate-800">Overview Analytics</h2>
+              <h2 className="text-lg font-bold text-slate-800">{t("overview_analytics")}</h2>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-slate-50 rounded-2xl p-4 flex flex-col items-center border border-slate-100">
                 <h3 className="text-3xl font-black text-slate-800">{pendingCount}</h3>
-                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">Pending</p>
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">{t("pending")}</p>
               </div>
               <div className="bg-emerald-50 rounded-2xl p-4 flex flex-col items-center border border-emerald-100">
                 <h3 className="text-3xl font-black text-emerald-600">{resolvedCount}</h3>
-                <p className="text-[10px] text-emerald-500 uppercase tracking-widest font-bold mt-1">Resolved</p>
+                <p className="text-[10px] text-emerald-500 uppercase tracking-widest font-bold mt-1">{t("resolved")}</p>
               </div>
             </div>
             {reports.length > 0 && isMounted && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Pie Chart */}
                 <div className="w-full flex flex-col min-w-0">
-                  <p className="text-xs font-bold text-slate-400 uppercase mb-2 text-center">Issue Distribution</p>
-                  <div className="w-full">
-                    <ResponsiveContainer width="100%" aspect={2} debounce={300}>
+                  <p className="text-xs font-bold text-slate-400 uppercase mb-2 text-center">{t("issue_distribution")}</p>
+                  <div className="w-full" style={{ height: "250px" }}>
+                    <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={5} dataKey="value">
                           {pieData.map((e, i) => <Cell key={i} fill={e.color} />)}
@@ -370,9 +366,9 @@ export default function AdminPage() {
                 </div>
                 {/* Bar Chart */}
                 <div className="w-full flex flex-col min-w-0">
-                  <p className="text-xs font-bold text-slate-400 uppercase mb-2 text-center">7-Day Activity</p>
-                  <div className="w-full">
-                    <ResponsiveContainer width="100%" aspect={2} debounce={300}>
+                  <p className="text-xs font-bold text-slate-400 uppercase mb-2 text-center">{t("activity_7_day")}</p>
+                  <div className="w-full" style={{ height: "250px" }}>
+                    <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={barData}>
                         <XAxis dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                         <RechartsTooltip cursor={{ fill: "#f8fafc" }} contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} />
@@ -387,9 +383,9 @@ export default function AdminPage() {
 
           {/* Report Lists */}
           {[
-            { title: "Water Issues",    icon: Droplet, items: waterReports,    color: "text-sky-600" },
-            { title: "Garbage Issues",  icon: Trash2,  items: garbageReports,  color: "text-stone-600" },
-            { title: "Material Waste",  icon: Box,     items: materialReports, color: "text-amber-600" },
+            { title: t("water_issues"), icon: Droplet, items: waterReports, color: "text-sky-600" },
+            { title: t("garbage_issues"), icon: Trash2, items: garbageReports, color: "text-stone-600" },
+            { title: t("material_waste"), icon: Box, items: materialReports, color: "text-amber-600" },
           ].map(({ title, icon: Icon, items, color }) => (
             <div key={title} className="mt-2">
               <h2 className={`text-xl font-extrabold flex items-center gap-2 mb-3 ${color}`}>
@@ -412,23 +408,23 @@ export default function AdminPage() {
           {/* Summary Stats */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-indigo-600 rounded-3xl p-5 text-white flex flex-col">
-              <p className="text-xs font-bold text-indigo-200 uppercase tracking-widest">Registered Residents</p>
+              <p className="text-xs font-bold text-indigo-200 uppercase tracking-widest">{t("registered_residents")}</p>
               <p className="text-4xl font-black mt-1">{totalResidents}</p>
-              <p className="text-xs text-indigo-200 mt-1">households</p>
+              <p className="text-xs text-indigo-200 mt-1">{t("households")}</p>
             </div>
             <div className="bg-emerald-600 rounded-3xl p-5 text-white flex flex-col">
-              <p className="text-xs font-bold text-emerald-200 uppercase tracking-widest">Total Community</p>
+              <p className="text-xs font-bold text-emerald-200 uppercase tracking-widest">{t("total_community")}</p>
               <p className="text-4xl font-black mt-1">{totalFamily}</p>
-              <p className="text-xs text-emerald-200 mt-1">family members</p>
+              <p className="text-xs text-emerald-200 mt-1">{t("family_members")}</p>
             </div>
           </div>
 
           {/* Gender Summary */}
           <div className="grid grid-cols-3 gap-2">
             {[
-              { label: "Male",   count: totalMale,   emoji: "👨", color: "bg-sky-50 border-sky-100 text-sky-700" },
-              { label: "Female", count: totalFemale, emoji: "👩", color: "bg-rose-50 border-rose-100 text-rose-700" },
-              { label: "Other",  count: totalFamily - totalMale - totalFemale, emoji: "🧑", color: "bg-purple-50 border-purple-100 text-purple-700" },
+              { label: t("male"), count: totalMale, emoji: "👨", color: "bg-sky-50 border-sky-100 text-sky-700" },
+              { label: t("female"), count: totalFemale, emoji: "👩", color: "bg-rose-50 border-rose-100 text-rose-700" },
+              { label: t("other"), count: totalFamily - totalMale - totalFemale, emoji: "🧑", color: "bg-purple-50 border-purple-100 text-purple-700" },
             ].map(({ label, count, emoji, color }) => (
               <div key={label} className={`rounded-2xl p-3 border flex flex-col items-center gap-1 ${color}`}>
                 <span className="text-xl">{emoji}</span>
@@ -445,7 +441,7 @@ export default function AdminPage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search by name, house no. or email..."
+                  placeholder={t("search_admin_placeholder")}
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -461,19 +457,19 @@ export default function AdminPage() {
                 ) : "🔄"}
               </button>
             </div>
-            
+
             <div className="flex gap-2 bg-slate-100 p-1 rounded-xl">
-              <button 
+              <button
                 onClick={() => setCommunitySort("house")}
                 className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${communitySort === 'house' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-400'}`}
               >
-                🔢 Sort by House
+                🔢 {t("sort_by_house")}
               </button>
-              <button 
+              <button
                 onClick={() => setCommunitySort("score")}
                 className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${communitySort === 'score' ? 'bg-white shadow-sm text-amber-600' : 'text-slate-400'}`}
               >
-                🏆 Sort by Score
+                🏆 {t("sort_by_score")}
               </button>
             </div>
           </div>
@@ -481,12 +477,12 @@ export default function AdminPage() {
           {/* Residents List */}
           {residentsLoading ? (
             <div className="flex flex-col gap-3">
-              {[1,2,3].map(i => <div key={i} className="h-28 bg-slate-100 animate-pulse rounded-3xl" />)}
+              {[1, 2, 3].map(i => <div key={i} className="h-28 bg-slate-100 animate-pulse rounded-3xl" />)}
             </div>
           ) : filteredResidents.length === 0 ? (
             <div className="bg-white rounded-3xl p-10 text-center border border-slate-100 flex flex-col items-center gap-3">
               <Users className="w-12 h-12 text-slate-200" />
-              <p className="text-slate-700 font-bold">No residents found.</p>
+              <p className="text-slate-700 font-bold">{t("no_residents_found")}</p>
               <p className="text-slate-400 text-sm">
                 {searchQuery ? "Try a different search term." : "No resident accounts have been registered yet. Ask residents to sign up at /signup."}
               </p>
@@ -504,16 +500,15 @@ export default function AdminPage() {
               </p>
               {filteredResidents.map((resident) => {
                 const isOpen = expandedId === resident._id;
-                const male   = resident.familyGenders?.male   || 0;
+                const male = resident.familyGenders?.male || 0;
                 const female = resident.familyGenders?.female || 0;
-                const other  = resident.familyGenders?.other  || 0;
-                const total  = resident.familySize || (male + female + other) || 0;
+                const other = resident.familyGenders?.other || 0;
+                const total = resident.familySize || (male + female + other) || 0;
 
                 return (
                   <div key={resident._id}
-                    className={`bg-white rounded-3xl border shadow-sm overflow-hidden transition-all ${
-                      isOpen ? "border-indigo-400 shadow-indigo-100" : "border-slate-100"
-                    }`}
+                    className={`bg-white rounded-3xl border shadow-sm overflow-hidden transition-all ${isOpen ? "border-indigo-400 shadow-indigo-100" : "border-slate-100"
+                      }`}
                   >
                     {/* ── Card Header (always visible) ── */}
                     <button
@@ -533,7 +528,7 @@ export default function AdminPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-black text-slate-800">{resident.name}</h3>
-                          <span className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full">Family Head</span>
+                          <span className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full">{t("family_head")}</span>
                           {(resident.trustScore || 0) > 0 && (
                             <span className="text-[10px] bg-amber-100 text-amber-700 font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
                               <Star className="w-2.5 h-2.5" /> {resident.trustScore} XP
@@ -554,7 +549,7 @@ export default function AdminPage() {
                       <div className="flex-shrink-0 flex flex-col items-end gap-1">
                         <div className="bg-indigo-50 rounded-xl px-3 py-1 text-center">
                           <p className="text-xl font-black text-indigo-700">{total}</p>
-                          <p className="text-[9px] text-indigo-400 font-bold uppercase">members</p>
+                          <p className="text-[9px] text-indigo-400 font-bold uppercase">{t("members")}</p>
                         </div>
                         {isOpen
                           ? <ChevronUp className="w-4 h-4 text-slate-400" />
@@ -570,58 +565,58 @@ export default function AdminPage() {
                         {/* House Details grid */}
                         <div className="grid grid-cols-2 gap-3">
                           <div className="bg-white rounded-2xl p-3 border border-slate-100">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">House / Flat No.</p>
-                            <p className="text-base font-black text-slate-800 mt-1">{resident.houseNumber || "Not provided"}</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("house_number_label")}</p>
+                            <p className="text-base font-black text-slate-800 mt-1">{resident.houseNumber || "—"}</p>
                           </div>
                           <div className="bg-white rounded-2xl p-3 border border-slate-100">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Family Size</p>
-                            <p className="text-base font-black text-slate-800 mt-1">{total} members</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("total_family_size")}</p>
+                            <p className="text-base font-black text-slate-800 mt-1">{total} {t("members")}</p>
                           </div>
                           <div className="bg-white rounded-2xl p-3 border border-slate-100">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Member Since</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("member_since")}</p>
                             <p className="text-sm font-bold text-slate-700 mt-1">
                               {resident.createdAt ? new Date(resident.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
                             </p>
                           </div>
                           <div className="bg-white rounded-2xl p-3 border border-slate-100">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Eco Trust Score</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("eco_trust_score")}</p>
                             <p className="text-base font-black text-amber-600 mt-1">⭐ {resident.trustScore || 0} XP</p>
                           </div>
                         </div>
 
                         {/* Gender Breakdown */}
                         <div className="bg-white rounded-2xl p-4 border border-slate-100">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Family Gender Breakdown</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">{t("family_gender_breakdown")}</p>
                           <div className="grid grid-cols-3 gap-2 mb-3">
                             <div className="flex flex-col items-center bg-sky-50 rounded-xl p-2 border border-sky-100">
                               <span className="text-2xl">👨</span>
                               <p className="text-lg font-black text-sky-700">{male}</p>
-                              <p className="text-[10px] font-bold text-sky-500">Male</p>
+                              <p className="text-[10px] font-bold text-sky-500">{t("male")}</p>
                             </div>
                             <div className="flex flex-col items-center bg-rose-50 rounded-xl p-2 border border-rose-100">
                               <span className="text-2xl">👩</span>
                               <p className="text-lg font-black text-rose-600">{female}</p>
-                              <p className="text-[10px] font-bold text-rose-400">Female</p>
+                              <p className="text-[10px] font-bold text-rose-400">{t("female")}</p>
                             </div>
                             <div className="flex flex-col items-center bg-purple-50 rounded-xl p-2 border border-purple-100">
                               <span className="text-2xl">🧑</span>
                               <p className="text-lg font-black text-purple-600">{other}</p>
-                              <p className="text-[10px] font-bold text-purple-400">Other</p>
+                              <p className="text-[10px] font-bold text-purple-400">{t("other")}</p>
                             </div>
                           </div>
                           {/* Proportion bar */}
                           {total > 0 && (
                             <div className="h-3 w-full rounded-full flex overflow-hidden bg-slate-100">
-                              {male > 0 && <div className="bg-sky-400 h-full" style={{width:`${(male/total)*100}%`}} />}
-                              {female > 0 && <div className="bg-rose-400 h-full" style={{width:`${(female/total)*100}%`}} />}
-                              {other > 0 && <div className="bg-purple-400 h-full" style={{width:`${(other/total)*100}%`}} />}
+                              {male > 0 && <div className="bg-sky-400 h-full" style={{ width: `${(male / total) * 100}%` }} />}
+                              {female > 0 && <div className="bg-rose-400 h-full" style={{ width: `${(female / total) * 100}%` }} />}
+                              {other > 0 && <div className="bg-purple-400 h-full" style={{ width: `${(other / total) * 100}%` }} />}
                             </div>
                           )}
                         </div>
 
                         {/* Contact */}
                         <div className="bg-white rounded-2xl p-4 border border-slate-100 flex flex-col gap-2">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contact Details</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("contact_details")}</p>
                           <a href={`mailto:${resident.email}`}
                             className="flex items-center gap-2 text-sm text-indigo-600 font-semibold hover:underline">
                             <Mail className="w-4 h-4" /> {resident.email}
@@ -642,7 +637,7 @@ export default function AdminPage() {
                           className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-black text-sm rounded-2xl transition-all active:scale-95"
                         >
                           <UserX className="w-4 h-4" />
-                          Remove Household from Registry
+                          {t("remove_household")}
                         </button>
                       </div>
                     )}
@@ -662,66 +657,34 @@ export default function AdminPage() {
                 <Volume2 className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-black text-slate-800">IVR Voice Reports</h2>
-                <p className="text-sm text-slate-500 font-medium">Reports received via automated phone calls</p>
+                <h2 className="text-xl font-black text-slate-800">{t("ivr_voice_reports")}</h2>
+                <p className="text-sm text-slate-500 font-medium">{t("voice_logs_automated")}</p>
               </div>
             </div>
 
             {voiceLoading ? (
               <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-amber-500" /></div>
-            ) : (voiceReports.length === 0 && passthruRequests.length === 0) ? (
+            ) : voiceReports.length === 0 ? (
               <div className="text-center py-10 text-slate-400 italic">No voice reports received yet.</div>
             ) : (
-              <div className="flex flex-col gap-6">
-                {/* Manual Voice Reports (House Number based) */}
-                {voiceReports.length > 0 && (
-                  <div className="flex flex-col gap-3">
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">Manual Issue Reports</p>
-                    {voiceReports.map(report => (
-                      <div key={report._id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-lg font-black text-slate-700 border border-slate-100">
-                            {report.houseNumber}
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-slate-800">{report.issueType}</h3>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(report.timestamp).toLocaleString()}</p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          <span className="text-[10px] bg-amber-100 text-amber-700 font-black px-2 py-0.5 rounded-full uppercase">📞 Voice Log</span>
-                          <p className="text-[9px] text-slate-300 font-mono">SID: {report.callSid?.substring(0, 8)}...</p>
-                        </div>
+              <div className="flex flex-col gap-3">
+                {voiceReports.map(report => (
+                  <div key={report._id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-lg font-black text-slate-700 border border-slate-100">
+                        {report.houseNumber}
                       </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Passthru Requests (Menu based) */}
-                {passthruRequests.length > 0 && (
-                  <div className="flex flex-col gap-3">
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">Menu Passthru Requests (Exotel/Twilio)</p>
-                    {passthruRequests.map(req => (
-                      <div key={req._id} className="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-lg font-black text-indigo-700 border border-indigo-100">
-                            {req.inputDigit}
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-slate-800 uppercase">Request for {req.type}</h3>
-                            <p className="text-[10px] text-slate-400 font-bold tracking-widest flex items-center gap-1.5">
-                              <Phone className="w-3 h-3" /> {req.phone}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          <span className="text-[10px] bg-indigo-100 text-indigo-700 font-black px-2 py-0.5 rounded-full uppercase">⚡ Menu Input</span>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase">{new Date(req.timestamp).toLocaleString()}</p>
-                        </div>
+                      <div>
+                        <h3 className="font-bold text-slate-800">{report.issueType}</h3>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(report.timestamp).toLocaleString()}</p>
                       </div>
-                    ))}
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-[10px] bg-amber-100 text-amber-700 font-black px-2 py-0.5 rounded-full uppercase">📞 Voice Log</span>
+                      <p className="text-[9px] text-slate-300 font-mono">SID: {report.callSid?.substring(0, 8)}...</p>
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
             )}
           </div>

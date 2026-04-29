@@ -13,7 +13,7 @@ export default function SyncService() {
 
     const handleOnline = () => {
       setIsOnline(true);
-      syncData();
+      syncAllData();
     };
     const handleOffline = () => setIsOnline(false);
 
@@ -22,7 +22,7 @@ export default function SyncService() {
 
     // Initial sync if online
     if (navigator.onLine) {
-      syncData();
+      syncAllData();
     }
 
     return () => {
@@ -31,41 +31,58 @@ export default function SyncService() {
     };
   }, []);
 
-    const syncData = async () => {
+  const syncAllData = async () => {
     if (isSyncing) return;
     setIsSyncing(true);
 
     try {
-      const pendingReports = await db.reports.where("synced").equals(0).toArray();
+      // 1. Sync Reports
+      await syncTable("reports", "/api/reports", (data) => ({ reports: data }));
       
-      if (pendingReports.length === 0) {
-        setIsSyncing(false);
-        return;
-      }
+      // 2. Sync Water Usage
+      await syncTable("water_usage", "/api/water-usage/sync", (data) => ({ logs: data }));
+      
+      // 3. Sync Electricity Usage
+      await syncTable("electricity_usage", "/api/electricity-usage/sync", (data) => ({ logs: data }));
 
-      const response = await fetch("/api/reports", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reports: pendingReports }),
-      });
-
-      if (response.ok) {
-        // Mark all as synced in Dexie
-        const ids = pendingReports.map((r) => r.id);
-        await db.reports.bulkUpdate(
-          ids.map(id => ({ key: id, changes: { synced: 1 } }))
-        );
-      }
     } catch (error) {
-      console.error("Sync failed", error);
+      console.error("Global Sync failed", error);
     } finally {
       setIsSyncing(false);
     }
   };
 
+  const syncTable = async (tableName, endpoint, formatBody) => {
+    try {
+      const pendingItems = await db[tableName].where("synced").equals(0).toArray();
+      
+      if (pendingItems.length === 0) return;
+
+      console.log(`Syncing ${pendingItems.length} items for ${tableName}...`);
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formatBody(pendingItems)),
+      });
+
+      if (response.ok) {
+        const ids = pendingItems.map((item) => item.id);
+        await db[tableName].bulkUpdate(
+          ids.map(id => ({ key: id, changes: { synced: 1 } }))
+        );
+        console.log(`Successfully synced ${tableName}`);
+      } else {
+        console.warn(`Failed to sync ${tableName}: ${response.statusText}`);
+      }
+    } catch (err) {
+      console.error(`Error syncing ${tableName}:`, err);
+    }
+  };
+
   if (!isOnline) {
     return (
-      <div className="fixed bottom-4 right-4 bg-amber-100 text-amber-800 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-semibold z-50">
+      <div className="fixed bottom-4 right-4 bg-amber-100 text-amber-800 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-semibold z-50 animate-pulse">
         <CloudOff className="w-4 h-4" />
         Offline Mode
       </div>

@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar"; // Redesigned Navigation
 import Header from "../components/Header";   // New component for profile/actions
 import Footer from "../components/Footer";
 import { UIProvider } from "../components/UIProvider";
+import I18nProvider from "../components/I18nProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -24,12 +25,15 @@ export const metadata = {
   manifest: "/manifest.json",
 };
 
+import Script from "next/script";
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} antialiased`}>
       <body suppressHydrationWarning className="bg-bg text-text-main h-screen flex overflow-hidden">
         <AuthProvider>
-          <UIProvider>
+          <I18nProvider>
+            <UIProvider>
             {/* Desktop Sidebar */}
             <Sidebar />
 
@@ -45,7 +49,8 @@ export default function RootLayout({ children }) {
                 </div>
               </main>
             </div>
-          </UIProvider>
+            </UIProvider>
+          </I18nProvider>
         </AuthProvider>
       </body>
     </html>

@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { connectToDatabase, Resident, WaterUsage } from "../../../lib/db/mongoose";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";

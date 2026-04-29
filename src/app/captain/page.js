@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Check, X, ShieldAlert } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function CaptainPage() {
+  const { t } = useTranslation();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,7 +40,7 @@ export default function CaptainPage() {
   };
 
   if (loading) {
-    return <div className="text-center mt-12 text-slate-500 font-medium">Loading pending reports...</div>;
+    return <div className="text-center mt-12 text-slate-500 font-medium">{t("loading_pending_reports")}</div>;
   }
 
   return (
@@ -46,14 +48,14 @@ export default function CaptainPage() {
       <div className="text-center mb-2 mt-6">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center justify-center gap-2">
           <ShieldAlert className="w-8 h-8 text-emerald-600" />
-          Verification
+          {t("verification_title")}
         </h1>
-        <p className="text-slate-500 mt-2 font-medium">Review community reports.</p>
+        <p className="text-slate-500 mt-2 font-medium">{t("review_community_reports")}</p>
       </div>
 
       {reports.length === 0 ? (
         <div className="bg-white rounded-3xl p-8 text-center shadow-sm border border-slate-100">
-          <p className="text-slate-500 font-medium">All caught up! No pending reports.</p>
+          <p className="text-slate-500 font-medium">{t("no_pending_reports")}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4">

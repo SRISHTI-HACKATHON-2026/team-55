@@ -15,7 +15,46 @@ const serwist = new Serwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  runtimeCaching: defaultCache,
+  runtimeCaching: [
+    ...defaultCache,
+    {
+      // Cache translations and static JSON locales
+      matcher: ({ url }) => url.pathname.startsWith("/locales/"),
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "locales-cache",
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        },
+      },
+    },
+    {
+      // Cache images/icons from public
+      matcher: ({ url }) => /\.(?:png|jpg|jpeg|svg|ico)$/.test(url.pathname),
+      handler: "CacheFirst",
+      options: {
+        cacheName: "static-image-assets",
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 60 * 24 * 60 * 60, // 60 days
+        },
+      },
+    },
+    {
+      // Cache API GET requests for offline view
+      matcher: ({ url }) => url.pathname.startsWith("/api/") && !url.pathname.includes("/auth/"),
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "api-cache",
+        networkTimeoutSeconds: 5,
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 24 * 60 * 60, // 1 day
+        },
+      },
+    },
+  ],
 });
 
 serwist.addEventListeners();
