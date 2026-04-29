@@ -20,6 +20,13 @@ const nextConfig = {
     workerThreads: false,
   },
   staticPageGenerationTimeout: 1000,
+  // Disable minification to save memory during build
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      config.optimization.minimize = false;
+    }
+    return config;
+  },
 };
 
 export default withSerwist(nextConfig);
