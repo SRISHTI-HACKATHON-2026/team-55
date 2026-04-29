@@ -26,8 +26,45 @@ export default function Header() {
     };
   }, []);
 
-  if (status !== "authenticated" || !session) return null;
+  if (status === "loading") return null;
 
+  // Unauthenticated Navbar
+  if (status !== "authenticated" || !session) {
+    return (
+      <header className="h-16 w-full bg-white flex items-center justify-between px-6 lg:px-10">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
+            <Globe className="w-5 h-5" />
+          </div>
+          <span className="font-extrabold text-xl tracking-tight text-slate-800">
+            Eco<span className="text-emerald-600">Ledger</span>
+          </span>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-2">
+            {languages.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => i18n.changeLanguage(lang.code)}
+                className={`text-lg hover:scale-110 transition-transform ${i18n.language === lang.code ? 'grayscale-0' : 'grayscale opacity-50'}`}
+                title={lang.name}
+              >
+                {lang.flag}
+              </button>
+            ))}
+          </div>
+          <div className="h-6 w-px bg-slate-200 hidden sm:block mx-2" />
+          <a href="/login" className="text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors">
+            {t("login", "Login")}
+          </a>
+          <a href="/signup" className="text-sm font-bold bg-emerald-600 text-white px-4 py-2 rounded-full hover:bg-emerald-700 transition-colors shadow-sm">
+            {t("signup", "Sign Up")}
+          </a>
+        </div>
+      </header>
+    );
+  }
   // Determine page title based on path/role
   const isAdmin = session.user.role === "admin";
   let pageTitle = t("dashboard");
@@ -46,14 +83,14 @@ export default function Header() {
   };
 
   return (
-    <header className="h-20 bg-surface border-b border-border flex items-center justify-between px-6 lg:px-10 sticky top-0 z-30">
+    <header className="h-16 w-full bg-white flex items-center justify-between px-6 lg:px-10">
       <div className="flex items-center gap-4">
-        <div className="hidden md:flex items-center gap-2 text-[10px] font-black text-text-muted uppercase tracking-widest">
+        <div className="hidden md:flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
           <span>EcoLedger</span>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-primary">{isAdmin ? "Admin" : "Resident"}</span>
+          <span className="text-emerald-600">{isAdmin ? "Admin" : "Resident"}</span>
         </div>
-        <h1 className="text-xl font-black text-text-main tracking-tight">{pageTitle}</h1>
+        <h1 className="text-xl font-black text-slate-800 tracking-tight">{pageTitle}</h1>
       </div>
 
       {/* Global Actions */}
