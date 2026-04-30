@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { ShieldCheck, Mail, Lock, UserPlus, LogIn, ChevronRight, Loader2, Globe, Leaf, Zap } from "lucide-react";
+import { ShieldCheck, Mail, Lock, UserPlus, LogIn, ChevronRight, Loader2, Globe, Leaf, Zap, Landmark } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,134 +41,160 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col md:flex-row overflow-hidden font-sans text-slate-900">
+    <div className="min-h-screen bg-white flex flex-col md:flex-row overflow-hidden selection:bg-primary-light">
 
-      {/* LEFT PANEL: The "Home Page" Content */}
+      {/* 🏛️ LEFT PANEL: Institutional Branding */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="hidden md:flex md:w-1/2 bg-slate-50 border-r border-slate-100 p-16 flex-col justify-between relative overflow-hidden"
+        className="hidden md:flex md:w-1/2 bg-primary p-16 flex-col justify-between relative overflow-hidden"
       >
-        {/* Subtle grid background for the left side only */}
-        <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
-          style={{ backgroundImage: `radial-gradient(#000 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
+        {/* Modern Geometric Pattern Overlay */}
+        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-accent/10 rounded-full blur-2xl" />
 
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-12">
-            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-600/20">
-              <ShieldCheck className="text-white w-6 h-6" />
+          <div className="flex items-center gap-3 mb-16">
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-2xl">
+              <ShieldCheck className="text-primary w-7 h-7" />
             </div>
-            <span className="text-2xl font-bold tracking-tight text-slate-900 uppercase">EcoLedger</span>
+            <div className="flex flex-col">
+              <span className="text-2xl font-black tracking-tighter text-white">EcoLedger</span>
+              <span className="text-[10px] font-black text-blue-200 uppercase tracking-[0.3em] leading-none">Institutional Portal</span>
+            </div>
           </div>
 
-          <h1 className="text-6xl font-serif leading-[1.1] text-slate-900 mb-8">
-            Manage your <br />
-            <span className="text-emerald-600">resources</span> with <br />
-            intelligence.
+          <h1 className="text-5xl lg:text-7xl font-black leading-tight text-white mb-8 tracking-tighter">
+            Smart City <br />
+            <span className="text-accent">Governance</span> <br />
+            Simplified.
           </h1>
 
-          <div className="space-y-8 mt-12">
-            <div className="flex gap-5">
-              <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center shrink-0 border border-slate-100">
-                <Leaf className="text-emerald-500 w-5 h-5" />
+          <p className="text-xl text-blue-100 max-w-md mb-12 font-medium leading-relaxed">
+            Access the official municipal resource tracking and community accountability network.
+          </p>
+
+          <div className="grid grid-cols-1 gap-6 mt-12">
+            <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
+              <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-accent/20">
+                <Landmark className="text-white w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-slate-800">Sustainability First</h4>
-                <p className="text-slate-500 text-sm">Real-time monitoring of water and energy conservation efforts.</p>
+                <h4 className="font-bold text-white text-sm">Official Authority</h4>
+                <p className="text-blue-200 text-xs">Direct integration with municipal departments.</p>
               </div>
             </div>
-            <div className="flex gap-5">
-              <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center shrink-0 border border-slate-100">
-                <Zap className="text-amber-500 w-5 h-5" />
+            <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
+              <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+                <Zap className="text-accent w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-slate-800">AI Classification</h4>
-                <p className="text-slate-500 text-sm">Automated issue reporting using advanced computer vision.</p>
+                <h4 className="font-bold text-white text-sm">Real-time Intelligence</h4>
+                <p className="text-blue-200 text-xs">AI-driven reporting and geospatial tracking.</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="relative z-10 pt-12 flex items-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
-          <span>Karnataka Digital Infrastructure</span>
-          <span className="w-1 h-1 bg-slate-300 rounded-full" />
-          <span>2026</span>
+        <div className="relative z-10 pt-12 flex items-center gap-4 text-[10px] font-black text-blue-300 uppercase tracking-widest">
+          <span>Official Secure Gateway</span>
+          <span className="w-1 h-1 bg-blue-400 rounded-full" />
+          <span>SDMShrishti 2026</span>
         </div>
       </motion.div>
 
-      {/* RIGHT PANEL: The Login/Auth Logic */}
+      {/* 🔐 RIGHT PANEL: Secure Authentication */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="flex-1 flex items-center justify-center p-8 bg-white"
+        className="flex-1 flex items-center justify-center p-6 md:p-12 bg-white"
       >
-        <div className="w-full max-w-[400px]">
-          {/* Mobile-only Logo */}
-          <div className="md:hidden flex flex-col items-center mb-10">
-            <ShieldCheck className="text-emerald-600 w-12 h-12 mb-4" />
-            <h1 className="text-3xl font-bold">EcoLedger</h1>
+        <div className="w-full max-w-[440px]">
+          {/* Mobile-only Header */}
+          <div className="md:hidden flex flex-col items-center mb-10 text-center">
+            <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-xl mb-4">
+              <ShieldCheck className="text-white w-8 h-8" />
+            </div>
+            <h1 className="text-3xl font-black tracking-tighter text-slate-900">EcoLedger</h1>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Official Municipal Gateway</p>
           </div>
 
           <div className="mb-10">
-            <h2 className="text-3xl font-serif text-slate-900 mb-2">Welcome Back</h2>
-            <p className="text-slate-500">Enter your credentials to manage your estate.</p>
+            <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">Authorized Access</h2>
+            <p className="text-slate-500 font-medium">Please authenticate to access your personal or administrative dashboard.</p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm animate-shake">
-              <p className="font-bold">Access Denied</p>
-              <p>{error}</p>
+            <div className="mb-8 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-start gap-3 animate-in slide-in-from-top-2">
+              <div className="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center shrink-0 text-white shadow-lg shadow-rose-200">
+                <Lock className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="font-black text-rose-700 text-xs uppercase tracking-wider">Security Notice</p>
+                <p className="text-rose-600 text-sm font-medium mt-0.5">{error}</p>
+              </div>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Email Terminal</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Terminal Identity</label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                 <input
-                  name="email" type="email" required placeholder="resident@ecoledger.com"
-                  className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 transition-all"
+                  name="email" type="email" required placeholder="name@official.com"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 py-4 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-medium"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Secure Password</label>
+              <div className="flex justify-between items-center px-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Secure Key</label>
+                <Link href="#" className="text-[10px] font-black text-primary hover:underline uppercase tracking-wider">Lost Key?</Link>
+              </div>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                 <input
                   name="password" type="password" required placeholder="••••••••"
-                  className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 py-4 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-medium"
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-4 pt-4">
+            <div className="flex flex-col gap-4 pt-6">
               {/* Primary Login Button */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-3 shadow-xl active:scale-[0.98]"
+                className="w-full bg-primary hover:bg-primary-dark text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-2xl shadow-primary/20 active:scale-[0.98] disabled:opacity-70"
               >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><LogIn className="w-4 h-4" /> Sign In to Portal</>}
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><LogIn className="w-4 h-4" /> AUTHENTICATE & ENTER</>}
               </button>
+
+              <div className="flex items-center gap-4 my-2">
+                <div className="h-px flex-1 bg-slate-100" />
+                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">New Personnel</span>
+                <div className="h-px flex-1 bg-slate-100" />
+              </div>
 
               {/* Secondary Signup Button */}
               <Link
                 href="/signup"
-                className="w-full bg-white border border-slate-200 hover:border-slate-800 text-slate-800 font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 group"
+                className="w-full bg-white border-2 border-slate-100 hover:border-primary text-slate-700 font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 group"
               >
-                <UserPlus className="w-4 h-4 text-emerald-600" />
-                Enroll New Resident
-                <ChevronRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
+                <UserPlus className="w-4 h-4 text-primary" />
+                ENROLL FOR ACCESS
+                <ChevronRight className="w-4 h-4 ml-auto text-slate-300 group-hover:translate-x-1 group-hover:text-primary transition-all" />
               </Link>
             </div>
           </form>
 
-          <footer className="mt-12 text-center">
-            <p className="text-xs text-slate-400 font-medium">
-              Experiencing login issues? <Link href="#" className="text-slate-900 underline font-bold">Contact Estate Support</Link>
+          <footer className="mt-16 text-center">
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-loose">
+              By accessing this terminal, you agree to the <br />
+              <Link href="#" className="text-primary hover:underline">Institutional Security Protocols</Link>
             </p>
           </footer>
         </div>
