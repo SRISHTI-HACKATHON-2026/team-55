@@ -31,10 +31,10 @@ export default function SignupPage() {
     setError("");
     setIsLoading(true);
 
-    const name        = e.target.name.value.trim();
-    const email       = e.target.email.value.trim();
-    const password    = e.target.password.value;
-    const phone       = e.target.phone?.value?.trim() || "";
+    const name = e.target.name.value.trim();
+    const email = e.target.email.value.trim();
+    const password = e.target.password.value;
+    const phone = e.target.phone?.value?.trim() || "";
     const houseNumber = role === "resident" ? (e.target.houseNumber?.value?.trim() || "") : "";
 
     if (password.length < 6) {
@@ -91,15 +91,13 @@ export default function SignupPage() {
           {/* Role Tabs */}
           <div className="p-1.5 bg-slate-50 border-b border-slate-100 flex gap-1">
             <button type="button" onClick={() => setRole("resident")}
-              className={`flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-                role === "resident" ? "bg-emerald-600 text-white shadow-md" : "text-slate-500 hover:bg-white"
-              }`}>
+              className={`flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${role === "resident" ? "bg-emerald-600 text-white shadow-md" : "text-slate-500 hover:bg-white"
+                }`}>
               <User className="w-4 h-4" /> {t("resident")}
             </button>
             <button type="button" onClick={() => setRole("admin")}
-              className={`flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-                role === "admin" ? "bg-indigo-600 text-white shadow-md" : "text-slate-500 hover:bg-white"
-              }`}>
+              className={`flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${role === "admin" ? "bg-indigo-600 text-white shadow-md" : "text-slate-500 hover:bg-white"
+                }`}>
               <Shield className="w-4 h-4" /> {t("admin")}
             </button>
           </div>
@@ -113,8 +111,8 @@ export default function SignupPage() {
                 <h3 className="text-xl font-black text-slate-800">{t("account_created")}</h3>
                 <p className="text-slate-500 text-sm">{t("saved_to_mongodb")}</p>
                 <div className="flex gap-1">
-                  {[0,150,300].map(d => (
-                    <div key={d} className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{animationDelay:`${d}ms`}} />
+                  {[0, 150, 300].map(d => (
+                    <div key={d} className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: `${d}ms` }} />
                   ))}
                 </div>
               </div>
@@ -127,9 +125,8 @@ export default function SignupPage() {
                 )}
 
                 {/* Role badge */}
-                <div className={`text-xs font-black px-3 py-1.5 rounded-full self-start flex items-center gap-1.5 ${
-                  role === "admin" ? "bg-indigo-100 text-indigo-700" : "bg-emerald-100 text-emerald-700"
-                }`}>
+                <div className={`text-xs font-black px-3 py-1.5 rounded-full self-start flex items-center gap-1.5 ${role === "admin" ? "bg-indigo-100 text-indigo-700" : "bg-emerald-100 text-emerald-700"
+                  }`}>
                   {role === "admin" ? <Shield className="w-3 h-3" /> : <User className="w-3 h-3" />}
                   {role === "admin" ? t("registering_as_admin") : t("registering_as_resident")}
                 </div>
@@ -258,11 +255,10 @@ export default function SignupPage() {
 
                 {/* Submit */}
                 <button type="submit" disabled={isLoading}
-                  className={`w-full py-3.5 rounded-2xl font-black text-white mt-1 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 ${
-                    role === "admin"
+                  className={`w-full py-3.5 rounded-2xl font-black text-white mt-1 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 ${role === "admin"
                       ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/30"
                       : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30"
-                  }`}>
+                    }`}>
                   {isLoading
                     ? <><Loader2 className="w-5 h-5 animate-spin" /> {t("creating_account")}</>
                     : role === "admin" ? t("create_admin_account") : t("create_resident_account")
