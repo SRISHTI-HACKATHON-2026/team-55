@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Loader2, Leaf, ShieldCheck, BarChart3, Globe, Zap, Landmark, ArrowRight, CheckCircle2, Users, Map, Camera } from "lucide-react";
+import { Loader2, Leaf, ShieldCheck, BarChart3, Globe, Zap, Landmark, ArrowRight, CheckCircle2, Users, Map as MapIcon, Camera } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
@@ -137,7 +137,7 @@ export default function RootPage() {
                    </div>
                    <div className="flex items-start gap-5">
                       <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
-                        <Map className="w-6 h-6 text-primary" />
+                        <MapIcon className="w-6 h-6 text-primary" />
                       </div>
                       <div>
                         <h4 className="font-black text-xl text-slate-900">2. Geospatial Tagging</h4>
