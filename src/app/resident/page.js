@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUI } from "../../components/UIProvider";
 import { useTranslation } from "react-i18next";
-import { Droplet, Trash2, Box, CheckCircle2, MapPin, Loader2, Navigation, Clock, Trophy, Award, ShieldAlert, AlertTriangle, Zap, TrendingDown, Globe, Heart } from "lucide-react";
+import { Droplet, Trash2, Box, CheckCircle2, MapPin, Loader2, Navigation, Clock, Trophy, Award, ShieldAlert, AlertTriangle, Zap, TrendingDown, Globe, Heart, Leaf } from "lucide-react";
 import { db } from "../../lib/db/dexie";
 import SyncService from "../../components/SyncService";
 import dynamic from "next/dynamic";

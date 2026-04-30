@@ -32,20 +32,29 @@ export default function Sidebar() {
   if (status !== "authenticated" || !session) return null;
 
   const isAdmin = session.user.role === "admin";
+  const isNgo = session.user.role === "ngo";
 
-  const navItems = isAdmin 
-    ? [
-        { name: t("report_issue"), href: "/admin", tab: "reports", icon: LayoutDashboard },
-        { name: t("community"), href: "/admin", tab: "community", icon: Users },
-        { name: t("voice_logs"), href: "/admin", tab: "voice", icon: Mic },
-      ]
-    : [
-        { name: t("report_issue"), href: "/resident", tab: "report", icon: MapPin },
-        { name: t("community_feed"), href: "/resident", tab: "feed", icon: Globe },
-        { name: t("water_usage"), href: "/resident", tab: "water", icon: Droplet },
-        { name: t("power_tracker"), href: "/resident", tab: "electricity", icon: Zap },
-        { name: t("leaderboard"), href: "/resident", tab: "leaderboard", icon: Award },
-      ];
+  let navItems = [];
+  if (isAdmin) {
+    navItems = [
+      { name: t("report_issue"), href: "/admin", tab: "reports", icon: LayoutDashboard },
+      { name: t("community"), href: "/admin", tab: "community", icon: Users },
+      { name: t("voice_logs"), href: "/admin", tab: "voice", icon: Mic },
+    ];
+  } else if (isNgo) {
+    navItems = [
+      { name: "Recovery Hub", href: "/ngo", tab: "recovery", icon: Heart },
+      { name: "Community Feed", href: "/resident", tab: "feed", icon: Globe },
+    ];
+  } else {
+    navItems = [
+      { name: t("report_issue"), href: "/resident", tab: "report", icon: MapPin },
+      { name: t("community_feed"), href: "/resident", tab: "feed", icon: Globe },
+      { name: t("water_usage"), href: "/resident", tab: "water", icon: Droplet },
+      { name: t("power_tracker"), href: "/resident", tab: "electricity", icon: Zap },
+      { name: t("leaderboard"), href: "/resident", tab: "leaderboard", icon: Award },
+    ];
+  }
 
   const NavLink = ({ item }) => {
     const isActive = activeTab === item.tab && pathname === item.href;
