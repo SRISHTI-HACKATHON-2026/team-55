@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { connectToDatabase, Admin, Resident } from "../../../../lib/db/mongoose";
+import { connectToDatabase, Admin, Resident, Ngo } from "../../../../lib/db/mongoose";
 
 export async function POST(request) {
   try {
