@@ -148,7 +148,7 @@ export default function Header() {
                     }}
                     className={`w-full text-left px-4 py-3.5 text-sm font-bold transition-colors flex items-center justify-between ${
                       i18n.language === lang.code 
-                        ? "bg-emerald-50 text-emerald-700" 
+                        ? "bg-primary-light text-primary" 
                         : "text-slate-600 hover:bg-slate-50"
                     }`}
                   >
@@ -156,7 +156,7 @@ export default function Header() {
                       <span className="text-xl">{lang.flag}</span>
                       <span>{lang.name}</span>
                     </div>
-                    {i18n.language === lang.code && <Zap className="w-3 h-3 fill-emerald-600 text-emerald-600" />}
+                    {i18n.language === lang.code && <Zap className="w-3 h-3 fill-primary text-primary" />}
                   </button>
                 ))}
               </div>
@@ -186,12 +186,12 @@ export default function Header() {
         {/* Status Indicator */}
         <div className={`hidden md:flex items-center gap-3 px-4 py-2 rounded-xl border transition-all ${
           isOnline 
-            ? "bg-emerald-50 border-emerald-100 text-emerald-700" 
+            ? "bg-blue-50 border-blue-100 text-blue-700" 
             : "bg-amber-50 border-amber-100 text-amber-700 animate-pulse"
         }`}>
           {isOnline ? (
             <>
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
               <span className="text-[10px] font-black uppercase tracking-wider">{t("system_live")}</span>
             </>
           ) : (

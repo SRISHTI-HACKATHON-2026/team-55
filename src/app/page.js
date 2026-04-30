@@ -41,18 +41,21 @@ export default function RootPage() {
       <div className="min-h-screen flex flex-col bg-white">
 
         {/* 🌿 HERO SECTION */}
-        <section className="flex flex-col items-center justify-center text-center px-6 py-20 bg-gradient-to-br from-emerald-500 to-green-600 text-white">
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+        <section className="flex flex-col items-center justify-center text-center px-6 py-24 bg-gradient-to-br from-primary to-primary-dark text-white relative overflow-hidden">
+          {/* Decorative government-style seal/pattern background element can be added here */}
+          <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+          
+          <h1 className="text-4xl md:text-7xl font-black mb-6 leading-tight tracking-tighter">
             {t("welcome_ecoledger")}
           </h1>
 
-          <p className="text-lg md:text-xl text-emerald-100 max-w-2xl mb-8">
+          <p className="text-lg md:text-2xl text-blue-100 max-w-3xl mb-10 font-medium leading-relaxed">
             {t("please_login_dashboard")}
           </p>
 
           <Link
             href="/login"
-            className="bg-white text-emerald-600 font-bold px-8 py-3 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
+            className="bg-accent text-white font-black px-10 py-4 rounded-xl shadow-2xl hover:scale-105 hover:bg-orange-600 transition-all duration-300 uppercase tracking-widest text-sm"
           >
             {t("login_now")}
           </Link>
@@ -63,7 +66,9 @@ export default function RootPage() {
           <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
 
             <div className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition">
-              <Leaf className="w-10 h-10 text-emerald-500 mb-4" />
+              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white mb-4">
+                <Globe className="w-6 h-6" />
+              </div>
               <h3 className="font-bold text-xl mb-2">Eco Tracking</h3>
               <p className="text-slate-500">
                 Monitor sustainability efforts and reduce environmental impact.
@@ -71,7 +76,7 @@ export default function RootPage() {
             </div>
 
             <div className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition">
-              <BarChart3 className="w-10 h-10 text-emerald-500 mb-4" />
+              <BarChart3 className="w-10 h-10 text-primary mb-4" />
               <h3 className="font-bold text-xl mb-2">Smart Analytics</h3>
               <p className="text-slate-500">
                 Gain insights with powerful dashboards and reporting tools.

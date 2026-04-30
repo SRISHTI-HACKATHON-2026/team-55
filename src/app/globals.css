@@ -1,27 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand Identity */
-  --color-primary: #10b981;
-  --color-primary-dark: #065f46;
-  --color-primary-light: #d1fae5;
+  /* Official Government Identity */
+  --color-primary: #1e40af; /* Deep Navy Blue */
+  --color-primary-dark: #1e3a8a;
+  --color-primary-light: #dbeafe;
+  --color-accent: #f97316; /* Modern Vibrant Saffron */
 
   /* Status Colors */
-  --color-water: #0ea5e9;
-  --color-energy: #f59e0b;
-  --color-waste: #64748b;
+  --color-water: #0284c7;
+  --color-energy: #fbbf24;
+  --color-waste: #475569;
 
   /* UI Foundation */
-  --color-bg: #f8fafc;
-  /* Subtle cool gray background */
+  --color-bg: #f1f5f9; /* Professional Slate Background */
   --color-surface: #ffffff;
-  /* Pure white for cards/sidebar */
-  --color-border: #e2e8f0;
-  /* Soft borders */
+  --color-border: #cbd5e1; /* Clearer, high-contrast borders */
   --color-text-main: #0f172a;
-  /* Slate 900 for readability */
-  --color-text-muted: #64748b;
-  /* Slate 500 for secondary info */
+  --color-text-muted: #475569;
 }
 
 @layer base {

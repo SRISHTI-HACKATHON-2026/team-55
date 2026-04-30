@@ -49,10 +49,9 @@ export default function RootLayout({ children }) {
               </Suspense>
 
               {/* --- OFFICIAL TOP BANNER --- */}
-              {/* This mimics the "An official website of the government" banner for authority */}
-              <div className="fixed top-0 left-0 w-full h-7 bg-slate-100 border-b border-slate-200 z-[60] flex items-center px-4">
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-slate-500">
-                  <ShieldCheck className="w-3 h-3" />
+              <div className="fixed top-0 left-0 w-full h-7 bg-primary border-b border-primary-dark z-[60] flex items-center px-4">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-white">
+                  <ShieldCheck className="w-3.5 h-3.5 text-accent" />
                   Official EcoLedger Institutional Portal
                 </div>
               </div>
