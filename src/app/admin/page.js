@@ -37,6 +37,8 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [communitySort, setCommunitySort] = useState("house"); // 'house' | 'score'
   const [isMounted, setIsMounted] = useState(false);
+  const [voiceReports, setVoiceReports] = useState([]);
+  const [voiceLoading, setVoiceLoading] = useState(false);
   useEffect(() => {
     setIsMounted(true);
     fetchReports();
