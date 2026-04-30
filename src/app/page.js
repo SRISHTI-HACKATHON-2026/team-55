@@ -54,9 +54,9 @@ export default function RootPage() {
             transition={{ duration: 0.8 }}
             className="z-10 max-w-5xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 rounded-full border border-white/20 mb-10 backdrop-blur-xl shadow-2xl">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg border border-white/10 mb-6 shadow-sm">
               <ShieldCheck className="w-4 h-4 text-accent" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em]">Official Municipal Resource Network</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 text-blue-200">Official Municipal Network</span>
             </div>
             
             <h1 className="text-5xl md:text-9xl font-black mb-8 leading-[0.9] tracking-tighter">
