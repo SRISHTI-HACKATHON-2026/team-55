@@ -18,7 +18,8 @@ import {
   Settings,
   HelpCircle,
   Menu,
-  X
+  X,
+  Heart
 } from "lucide-react";
 import { useState } from "react";
 
