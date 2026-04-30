@@ -44,41 +44,44 @@ export default function Header() {
   // 🏛️ Official Gateway Navbar (Unauthenticated)
   if (status !== "authenticated" || !session) {
     return (
-      <header className="h-16 w-full bg-white flex items-center justify-between px-4 lg:px-10 border-b border-slate-200">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20">
+      <header className="h-16 w-full bg-white flex items-center justify-between px-4 lg:px-10 border-b border-slate-200 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-white shadow-xl shadow-primary/20">
             <Globe className="w-5 h-5" />
           </div>
-          <span className="font-extrabold text-lg tracking-tight text-slate-800">
-            Eco<span className="text-primary">Ledger</span>
-          </span>
-          <div className="hidden sm:block h-4 w-px bg-slate-300 mx-2" />
-          <span className="hidden sm:block text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
-            Institutional Gateway
-          </span>
+          <div className="flex flex-col">
+            <span className="font-black text-lg tracking-tighter text-slate-900 leading-none">
+              Eco<span className="text-primary">Ledger</span>
+            </span>
+            <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">
+              Secure Gateway
+            </span>
+          </div>
         </div>
         
-        <div className="flex items-center gap-2 md:gap-4">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4 lg:gap-8">
+          {/* Language selection with tighter gap */}
+          <div className="flex items-center gap-1.5 md:gap-3">
             {languages.map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => changeLanguage(lang.code)}
-                className={`text-lg md:text-xl hover:scale-125 transition-all duration-200 ${i18n.language === lang.code ? 'grayscale-0 scale-110 drop-shadow-sm' : 'grayscale opacity-40 hover:opacity-80'}`}
+                className={`text-lg md:text-xl transition-all duration-300 hover:scale-125 ${i18n.language === lang.code ? 'grayscale-0 drop-shadow-md' : 'grayscale opacity-30 hover:opacity-60'}`}
                 title={lang.name}
               >
                 {lang.flag}
               </button>
             ))}
           </div>
-          <div className="h-6 w-px bg-slate-200 mx-1 md:mx-2" />
-          <div className="flex items-center gap-2">
-             <span className="hidden lg:block text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-2">Please Login to Access Data</span>
-             <a href="/login" className="text-xs font-black text-primary hover:text-primary-dark transition-colors border border-primary/20 px-3 py-1.5 rounded-lg bg-primary/5">
-                {t("login", "LOG IN")}
+
+          <div className="h-8 w-px bg-slate-100 hidden sm:block" />
+
+          <div className="flex items-center gap-2 md:gap-4">
+             <a href="/login" className="text-[10px] font-black text-slate-500 hover:text-primary transition-colors tracking-widest px-2">
+                LOG IN
              </a>
-             <a href="/signup" className="text-xs font-black bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-primary-dark transition-colors shadow-sm uppercase">
-                {t("signup", "JOIN")}
+             <a href="/signup" className="text-[10px] font-black bg-primary text-white px-5 py-2.5 rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 tracking-widest">
+                JOIN PORTAL
              </a>
           </div>
         </div>

@@ -69,8 +69,12 @@ export default function RootLayout({ children }) {
 
                 {/* Main Scrollable Content */}
                 <main className="flex-1 overflow-y-auto bg-slate-50/50">
-                  {/* Container uses more formal spacing (p-8) and standard widths */}
-                  <div className="max-w-screen-2xl mx-auto w-full p-6 lg:p-10 flex flex-col min-h-full">
+                  {/* Remove padding for login/signup to prevent large gaps */}
+                  <div className={`max-w-screen-2xl mx-auto w-full flex flex-col min-h-full ${
+                    children.props?.childProp?.segment === "login" || children.props?.childProp?.segment === "signup" 
+                      ? "p-0" 
+                      : "p-6 lg:p-10"
+                  }`}>
 
                     {/* Content Wrapper */}
                     <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-700">
