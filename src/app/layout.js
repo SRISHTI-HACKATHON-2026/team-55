@@ -68,7 +68,7 @@ export default function RootLayout({ children }) {
                   <main className="flex-1 overflow-y-auto bg-slate-50/50">
                     {/* Responsive padding */}
                     <div className={`max-w-screen-2xl mx-auto w-full flex flex-col min-h-full ${
-                      children.props?.childProp?.segment === "login" || children.props?.childProp?.segment === "signup" 
+                      !children.props?.childProp?.segment || children.props?.childProp?.segment === "login" || children.props?.childProp?.segment === "signup" 
                         ? "p-0" 
                         : "p-4 md:p-8 lg:p-10"
                     }`}>
