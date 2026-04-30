@@ -35,82 +35,119 @@ export default function RootPage() {
     );
   }
 
-  // 🚀 Unauthenticated Landing Page (Redesigned)
+  // 🚀 Official Institutional Gateway (Unauthenticated Landing Page)
   if (!session) {
     return (
       <div className="min-h-screen flex flex-col bg-white">
 
-        {/* 🌿 HERO SECTION */}
+        {/* 🏛️ INSTITUTIONAL HERO SECTION */}
         <section className="flex flex-col items-center justify-center text-center px-6 py-24 bg-gradient-to-br from-primary to-primary-dark text-white relative overflow-hidden">
-          {/* Decorative government-style seal/pattern background element can be added here */}
+          {/* Subtle Government Pattern */}
           <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
           
-          <h1 className="text-4xl md:text-7xl font-black mb-6 leading-tight tracking-tighter">
-            {t("welcome_ecoledger")}
-          </h1>
-
-          <p className="text-lg md:text-2xl text-blue-100 max-w-3xl mb-10 font-medium leading-relaxed">
-            {t("please_login_dashboard")}
-          </p>
-
-          <Link
-            href="/login"
-            className="bg-accent text-white font-black px-10 py-4 rounded-xl shadow-2xl hover:scale-105 hover:bg-orange-600 transition-all duration-300 uppercase tracking-widest text-sm"
-          >
-            {t("login_now")}
-          </Link>
-        </section>
-
-        {/* ✨ FEATURES SECTION */}
-        <section className="py-16 px-6 bg-slate-50">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
-
-            <div className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white mb-4">
-                <Globe className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-xl mb-2">Eco Tracking</h3>
-              <p className="text-slate-500">
-                Monitor sustainability efforts and reduce environmental impact.
-              </p>
+          <div className="z-10 animate-in fade-in zoom-in duration-1000">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full border border-white/20 mb-8 backdrop-blur-md">
+              <ShieldCheck className="w-4 h-4 text-accent" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Secure Civic Environment</span>
             </div>
+            
+            <h1 className="text-4xl md:text-8xl font-black mb-6 leading-tight tracking-tighter">
+              {t("welcome_ecoledger")}
+            </h1>
 
-            <div className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition">
-              <BarChart3 className="w-10 h-10 text-primary mb-4" />
-              <h3 className="font-bold text-xl mb-2">Smart Analytics</h3>
-              <p className="text-slate-500">
-                Gain insights with powerful dashboards and reporting tools.
-              </p>
+            <p className="text-lg md:text-2xl text-blue-100 max-w-3xl mx-auto mb-12 font-medium leading-relaxed">
+              Official municipal gateway for sustainable resource tracking, geospatial analysis, and community-driven civic accountability.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                href="/login"
+                className="w-full sm:w-auto bg-accent text-white font-black px-12 py-5 rounded-xl shadow-2xl hover:scale-105 hover:bg-orange-600 active:scale-95 transition-all duration-300 uppercase tracking-widest text-sm"
+              >
+                {t("login_now")}
+              </Link>
+              <Link
+                href="/signup"
+                className="w-full sm:w-auto bg-white/10 text-white border border-white/30 backdrop-blur-md font-black px-12 py-5 rounded-xl hover:bg-white hover:text-primary transition-all duration-300 uppercase tracking-widest text-sm"
+              >
+                Request Access
+              </Link>
             </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition">
-              <ShieldCheck className="w-10 h-10 text-emerald-500 mb-4" />
-              <h3 className="font-bold text-xl mb-2">Secure System</h3>
-              <p className="text-slate-500">
-                Role-based access with secure and reliable authentication.
-              </p>
-            </div>
-
           </div>
         </section>
 
-        {/* 🔥 CTA SECTION */}
-        <section className="py-16 text-center bg-white">
-          <h2 className="text-3xl font-bold mb-4 text-slate-900">
-            Start your sustainable journey today 🌱
-          </h2>
+        {/* 📊 PLATFORM CAPABILITIES SECTION */}
+        <section className="py-24 px-6 bg-slate-50 border-y border-slate-200">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-sm font-black text-primary uppercase tracking-[0.3em] mb-4">Core Infrastructure</h2>
+              <h3 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Platform Capabilities</h3>
+            </div>
 
-          <Link
-            href="/login"
-            className="inline-block mt-4 bg-emerald-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-emerald-700 transition"
-          >
-            {t("login_now")}
-          </Link>
+            <div className="grid md:grid-cols-3 gap-10">
+              <div className="bg-white p-10 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8">
+                  <Globe className="w-8 h-8" />
+                </div>
+                <h3 className="font-black text-2xl mb-4 tracking-tight">Geospatial Intelligence</h3>
+                <p className="text-slate-500 leading-relaxed font-medium">
+                  High-precision street-level mapping and real-time community cluster analysis for municipal oversight.
+                </p>
+              </div>
+
+              <div className="bg-white p-10 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8">
+                  <BarChart3 className="w-8 h-8" />
+                </div>
+                <h3 className="font-black text-2xl mb-4 tracking-tight">AI Analysis</h3>
+                <p className="text-slate-500 leading-relaxed font-medium">
+                  Integrated Gemini AI for automated waste classification and severity assessment of reported field issues.
+                </p>
+              </div>
+
+              <div className="bg-white p-10 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-8">
+                  <ShieldCheck className="w-8 h-8" />
+                </div>
+                <h3 className="font-black text-2xl mb-4 tracking-tight">Secure Governance</h3>
+                <p className="text-slate-500 leading-relaxed font-medium">
+                  Institutional-grade authentication and role-specific workflows for residents and city administrators.
+                </p>
+              </div>
+            </div>
+          </div>
         </section>
 
-        {/* ⚡ FOOTER */}
-        <footer className="text-center py-6 text-slate-400 text-sm">
-          © {new Date().getFullYear()} EcoLedger. All rights reserved.
+        {/* 🔐 ACCESS NOTICE */}
+        <section className="py-24 text-center bg-white px-6">
+          <div className="max-w-2xl mx-auto bg-slate-900 text-white p-12 rounded-[2rem] shadow-3xl">
+            <h2 className="text-3xl font-black mb-6 tracking-tight">
+              Authorized Personnel Only
+            </h2>
+            <p className="text-slate-400 mb-10 font-medium leading-relaxed">
+              To view real-time datasets, civic reports, or municipal analytics, please authenticate through the secure gateway.
+            </p>
+
+            <Link
+              href="/login"
+              className="inline-block bg-primary text-white px-12 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-primary-dark transition-all shadow-xl"
+            >
+              Secure Login
+            </Link>
+          </div>
+        </section>
+
+        {/* ⚡ OFFICIAL FOOTER */}
+        <footer className="bg-slate-50 border-t border-slate-200 py-12 px-6">
+           <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-primary rounded flex items-center justify-center text-white text-[10px] font-bold">EL</div>
+                <span className="font-black text-slate-900 tracking-tighter">EcoLedger Institutional</span>
+              </div>
+              <div className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                © {new Date().getFullYear()} Official Municipal Service Portal
+              </div>
+           </div>
         </footer>
       </div>
     );
