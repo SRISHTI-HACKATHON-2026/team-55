@@ -1,6 +1,6 @@
 # 🌿 EcoLedger: Institutional Civic Portal
 
-**EcoLedger** is a robust, inclusive smart city platform designed for high-authority municipal resource management. It bridges the digital divide by integrating advanced AI-driven web reporting with an analog-accessible IVR (Voicebot) system, ensuring every citizen can report issues regardless of their technology access.
+**EcoLedger** is a robust, inclusive smart city platform designed for high-authority municipal resource management. This is a **fully functional end-to-end website** deployed live at: **[https://sdmshrishti.onrender.com](https://sdmshrishti.onrender.com)**.
 
 [![Deployed on Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://sdmshrishti.onrender.com)
 [![Next.js 14](https://img.shields.io/badge/Framework-Next.js%2014-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
@@ -9,10 +9,10 @@
 
 ## 🚀 Key Features
 
-### 🎙️ Multi-Step IVR Voicebot (Exotel Integration)
-*   **Inclusive Reporting:** Allows residents to report Water, Electricity, and Surplus Food issues via a standard phone call.
-*   **Stateful Flow:** Integrated with a MongoDB state machine to handle multi-step voice inputs (House No. validation -> Quantity selection).
-*   **Automated Validation:** Cross-references house numbers against the resident database in real-time.
+### 🌐 End-to-End Functional Platform
+*   **Fully Deployed System:** A production-ready civic portal accessible live at [sdmshrishti.onrender.com](https://sdmshrishti.onrender.com).
+*   **Real-time Data Sync:** Seamless integration between resident reporting and administrative oversight.
+*   **Role-Based Access:** Secure, fully-implemented workflows for both citizens and municipal administrators.
 
 ### 📍 Geospatial Analysis & High-Precision Mapping
 *   **Deep Street-Level Maps:** Admin dashboard uses **Leaflet** with high-detail street layers for precise problem localization.
