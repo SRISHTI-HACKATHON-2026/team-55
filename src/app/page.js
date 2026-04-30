@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Loader2, Leaf, ShieldCheck, BarChart3, Globe, Zap, Landmark, ArrowRight, CheckCircle2, Users, Map as MapIcon, Camera } from "lucide-react";
+import { Loader2, Leaf, ShieldCheck, BarChart3, Globe, Zap, Landmark, ArrowRight, CheckCircle2, Users, Map as MapIcon, Camera, Lock } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
