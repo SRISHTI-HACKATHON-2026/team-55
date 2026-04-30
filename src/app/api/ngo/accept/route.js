@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase, Report, Resident } from "../../../lib/db/mongoose";
+import { connectToDatabase, Report, Resident } from "../../../../lib/db/mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/auth";
 
