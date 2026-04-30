@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌿 EcoLedger: Institutional Civic Portal
 
-## Getting Started
+**EcoLedger** is a robust, inclusive smart city platform designed for high-authority municipal resource management. It bridges the digital divide by integrating advanced AI-driven web reporting with an analog-accessible IVR (Voicebot) system, ensuring every citizen can report issues regardless of their technology access.
 
-First, run the development server:
+[![Deployed on Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://sdmshrishti.onrender.com)
+[![Next.js 14](https://img.shields.io/badge/Framework-Next.js%2014-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Key Features
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### 🎙️ Multi-Step IVR Voicebot (Exotel Integration)
+*   **Inclusive Reporting:** Allows residents to report Water, Electricity, and Surplus Food issues via a standard phone call.
+*   **Stateful Flow:** Integrated with a MongoDB state machine to handle multi-step voice inputs (House No. validation -> Quantity selection).
+*   **Automated Validation:** Cross-references house numbers against the resident database in real-time.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📍 Geospatial Analysis & High-Precision Mapping
+*   **Deep Street-Level Maps:** Admin dashboard uses **Leaflet** with high-detail street layers for precise problem localization.
+*   **Sub-Meter Geolocation:** Uses hardware-level `navigator.geolocation` for field reports to ensure administrative accuracy.
+*   **Heatmaps:** Visualizes community issue density to prioritize municipal response.
 
-## Learn More
+### 🧠 AI Vision & Classification
+*   **Gemini AI Integration:** Automatically classifies waste types (Plastic, Metal, Organic) from uploaded photos.
+*   **Automated Severity Assessment:** AI analyzes photo evidence to determine the urgency of reported issues.
 
-To learn more about Next.js, take a look at the following resources:
+### 🏛️ Government-Grade UI/UX
+*   **Institutional Aesthetic:** Deep forest green theme, high-contrast formal layouts, and official government-style banners.
+*   **Multi-Language Support:** Fully translated into **English, Hindi, Kannada, and Marathi** for local inclusivity.
+*   **Responsive Dashboard:** Specialized portals for both Administrative Oversight and Resident Action.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ Tech Stack
 
-## Deploy on Vercel
+*   **Frontend:** Next.js 14 (App Router), Tailwind CSS, Framer Motion.
+*   **Backend:** Next.js API Routes, MongoDB (Mongoose).
+*   **Voice Engine:** Exotel IVR Webhooks.
+*   **Mapping:** Leaflet.js, MapTiler, OpenStreetMap.
+*   **AI:** Google Gemini Pro Vision.
+*   **State Management:** React Context + UIProvider.
+*   **Authentication:** NextAuth.js.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📦 Getting Started
+
+### Prerequisites
+*   Node.js 18+
+*   MongoDB Atlas account
+*   Exotel Account (for IVR)
+*   Gemini API Key
+
+### Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/SRISHTI-HACKATHON-2026/team-55.git
+    cd team-55
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Environment Setup:**
+    Create a `.env.local` file with the following:
+    ```env
+    MONGODB_URI=your_mongodb_uri
+    NEXTAUTH_SECRET=your_secret
+    GEMINI_API_KEY=your_gemini_key
+    IVRTOKEN=your_exotel_token
+    IVRAPIKEY=your_exotel_key
+    IVRSID=your_exotel_sid
+    NEXT_PUBLIC_MAPTILER_API_KEY=your_maptiler_key
+    ```
+
+4.  **Run Development Server:**
+    ```bash
+    npm run dev
+    ```
+
+---
+
+## 🌐 Deployment
+
+This project is optimized for deployment on **Render**.
+
+### Deployment Steps:
+1.  Connect your GitHub repository to a new **Web Service** on Render.
+2.  Set the Build Command to `npm run build`.
+3.  Set the Start Command to `npm start`.
+4.  Add all environment variables from your `.env.local` to the Render Dashboard.
+5.  Ensure the IVR Webhook URL in Exotel is updated to `https://your-app.onrender.com/api/ivr/webhook`.
+
+---
+
+## 🏆 Hackathon Context
+
+Developed for the **Srishti Hackathon 2026**, EcoLedger aims to revolutionize municipal resource tracking by making digital governance truly inclusive through its unique voice-to-data bridge.
+
+---
+
+**Developed by Team 55**
+*(Part of the SDMShrishti Smart City Initiative)*
