@@ -6,6 +6,7 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useTranslation } from "react-i18next";
 import { User, Shield, Mail, Lock, Phone, Eye, EyeOff, CheckCircle2, Loader2, Home, Users, Heart, Award } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function SignupPage() {
   const router = useRouter();
