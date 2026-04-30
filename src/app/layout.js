@@ -69,11 +69,11 @@ export default function RootLayout({ children }) {
 
                 {/* Main Scrollable Content */}
                 <main className="flex-1 overflow-y-auto bg-slate-50/50">
-                  {/* Remove padding for login/signup to prevent large gaps */}
+                  {/* Tighter padding globally, especially on mobile */}
                   <div className={`max-w-screen-2xl mx-auto w-full flex flex-col min-h-full ${
                     children.props?.childProp?.segment === "login" || children.props?.childProp?.segment === "signup" 
                       ? "p-0" 
-                      : "p-6 lg:p-10"
+                      : "p-4 md:p-8 lg:p-10"
                   }`}>
 
                     {/* Content Wrapper */}
@@ -81,8 +81,8 @@ export default function RootLayout({ children }) {
                       {children}
                     </div>
 
-                    {/* Footer: Styled with more formal alignment and clear divisions */}
-                    <footer className="mt-12 pt-8 border-t border-slate-200">
+                    {/* Footer: Reduced margin */}
+                    <footer className="mt-8 pt-8 border-t border-slate-200">
                       <Footer />
                     </footer>
                   </div>
