@@ -20,9 +20,9 @@ const MiniMap = dynamic(() => import("../../components/MiniMap"), {
   loading: () => <div className="h-64 w-full mt-4 rounded-2xl bg-slate-100 animate-pulse border border-slate-200" />,
 });
 
-const CommunityVectorMap = dynamic(() => import("../../components/CommunityVectorMap"), {
+const MapComponent = dynamic(() => import("../../components/MapComponent"), {
   ssr: false,
-  loading: () => <div className="h-96 w-full bg-slate-100 animate-pulse rounded-3xl border border-slate-200" />,
+  loading: () => <div className="h-[500px] w-full bg-slate-100 animate-pulse rounded-3xl border border-slate-200" />,
 });
 
 export default function AdminPage() {
@@ -399,8 +399,14 @@ export default function AdminPage() {
             )}
           </div>
 
-          {/* Vector Map Overview */}
-          <CommunityVectorMap reports={reports} />
+          {/* Deep Street Level Leaflet Map */}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin className="w-5 h-5 text-emerald-600" />
+              <h2 className="text-xl font-extrabold text-slate-800">Geospatial Report Analysis</h2>
+            </div>
+            <MapComponent reports={reports} onResolve={(id) => handleAction(id, "verify", { stopPropagation: () => {} })} />
+          </div>
 
           {/* Report Lists */}
           {[
