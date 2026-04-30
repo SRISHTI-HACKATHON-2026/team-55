@@ -27,9 +27,10 @@ function UITabSyncer({ activeTab, setActiveTab, session }) {
 export function UIProvider({ children }) {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <UIContext.Provider value={{ activeTab, setActiveTab }}>
+    <UIContext.Provider value={{ activeTab, setActiveTab, sidebarOpen, setSidebarOpen }}>
       <Suspense fallback={null}>
         <UITabSyncer activeTab={activeTab} setActiveTab={setActiveTab} session={session} />
       </Suspense>

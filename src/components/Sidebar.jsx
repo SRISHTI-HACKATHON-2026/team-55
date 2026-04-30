@@ -26,9 +26,8 @@ export default function Sidebar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const router = useRouter();
-  const { activeTab, setActiveTab } = useUI();
+  const { activeTab, setActiveTab, sidebarOpen: isOpen, setSidebarOpen: setIsOpen } = useUI();
   const { t } = useTranslation();
-  const [isOpen, setIsOpen] = useState(false);
 
   if (status !== "authenticated" || !session) return null;
 
@@ -75,14 +74,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Menu Toggle */}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-xl shadow-md border border-border"
-      >
-        {isOpen ? <X className="w-6 h-6 text-primary" /> : <Menu className="w-6 h-6 text-primary" />}
-      </button>
-
       {/* Overlay */}
       {isOpen && (
         <div 

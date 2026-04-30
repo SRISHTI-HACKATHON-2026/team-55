@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import { useUI } from "./UIProvider";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import { Bell, Search, Globe, ChevronRight, CloudOff, Zap } from "lucide-react";
+import { Bell, Search, Globe, ChevronRight, CloudOff, Zap, Menu, X } from "lucide-react";
 
 export default function Header() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
-  const { activeTab } = useUI();
+  const { activeTab, sidebarOpen, setSidebarOpen } = useUI();
   const { t, i18n } = useTranslation();
   const [isOnline, setIsOnline] = useState(true);
   const [langOpen, setLangOpen] = useState(false);
@@ -87,7 +87,15 @@ export default function Header() {
 
   return (
     <header className="h-16 w-full bg-white flex items-center justify-between px-4 lg:px-10 sticky top-0 z-[100] border-b border-slate-100">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-4">
+        {/* Mobile Sidebar Toggle */}
+        <button 
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="lg:hidden p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-600"
+        >
+          {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+
         <div className="hidden md:flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
           <span>EcoLedger</span>
           <ChevronRight className="w-3 h-3" />
@@ -99,7 +107,7 @@ export default function Header() {
             </>
           )}
         </div>
-        <h1 className="text-lg md:text-xl font-black text-slate-800 tracking-tight capitalize truncate max-w-[150px] md:max-w-none">
+        <h1 className="text-lg md:text-xl font-black text-slate-800 tracking-tight capitalize truncate max-w-[120px] xs:max-w-[150px] md:max-w-none">
           {activeTab ? t(activeTab) : pageTitle}
         </h1>
       </div>
