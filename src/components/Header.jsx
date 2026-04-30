@@ -13,6 +13,7 @@ export default function Header() {
   const { activeTab } = useUI();
   const { t, i18n } = useTranslation();
   const [isOnline, setIsOnline] = useState(true);
+  const [langOpen, setLangOpen] = useState(false);
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
@@ -82,7 +83,7 @@ export default function Header() {
   if (pathname === "/admin") pageTitle = t("admin_control");
   if (pathname.startsWith("/resident") || (pathname === "/" && !isAdmin)) pageTitle = t("resident_portal");
 
-  const [langOpen, setLangOpen] = useState(false);
+
 
   return (
     <header className="h-16 w-full bg-white flex items-center justify-between px-4 lg:px-10 sticky top-0 z-[100] border-b border-slate-100">
