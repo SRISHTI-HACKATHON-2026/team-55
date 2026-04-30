@@ -18,8 +18,7 @@ import {
   Settings,
   HelpCircle,
   Menu,
-  X,
-  Phone
+  X
 } from "lucide-react";
 import { useState } from "react";
 
@@ -40,7 +39,6 @@ export default function Sidebar() {
         { name: t("report_issue"), href: "/admin", tab: "reports", icon: LayoutDashboard },
         { name: t("community"), href: "/admin", tab: "community", icon: Users },
         { name: t("voice_logs"), href: "/admin", tab: "voice", icon: Mic },
-        { name: "IVR Simulator", href: "/mock-ivr", tab: "mock-ivr", icon: Phone },
       ]
     : [
         { name: t("report_issue"), href: "/resident", tab: "report", icon: MapPin },
