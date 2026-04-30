@@ -36,6 +36,7 @@ export default function ResidentPage() {
   const [aiClassification, setAiClassification] = useState(null); // { type, confidence, description, materialType }
   const [isClassifying, setIsClassifying] = useState(false);
   const [selectedType, setSelectedType] = useState(null); // null = user hasn't overridden AI pick
+  const [servings, setServings] = useState(1);
 
   // Search states
   const [position, setPosition] = useState({ lat: null, lng: null });
@@ -242,6 +243,8 @@ export default function ResidentPage() {
         status: "Pending",
         timestamp: new Date().toISOString(),
         synced: 0,
+        foodServings: baseType === "Surplus Food" ? servings : undefined,
+        isNGOFeature: baseType === "Surplus Food"
       };
 
       // 0. Pre-check for duplicates (Same Type + Same Area within ~100m)
@@ -573,6 +576,37 @@ export default function ResidentPage() {
                 {selectedType === "Material Waste" && <span className="text-xs text-amber-100 font-bold">🤖 {t("ai_detected")} ({materialType})</span>}
               </div>
             </button>
+
+            <div className="h-px bg-slate-100 my-2" />
+            
+            <div className="bg-emerald-50 rounded-3xl p-6 border-2 border-emerald-100 space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="bg-emerald-500 text-white p-3 rounded-2xl shadow-lg shadow-emerald-500/20">
+                  <Leaf className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-black text-emerald-900 leading-tight">Surplus Food Recovery</h4>
+                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Help Nearby NGOs</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between bg-white p-3 rounded-2xl border border-emerald-100">
+                <span className="text-sm font-bold text-slate-700 ml-2">Approx Servings</span>
+                <div className="flex items-center gap-4">
+                  <button onClick={() => setServings(Math.max(1, servings - 1))} className="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-lg font-black">-</button>
+                  <span className="font-black text-lg w-8 text-center">{servings}</span>
+                  <button onClick={() => setServings(servings + 1)} className="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-lg font-black">+</button>
+                </div>
+              </div>
+
+              <button
+                disabled={isLocating}
+                onClick={() => handleReport("Surplus Food")}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-emerald-600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <CheckCircle2 className="w-5 h-5" /> REPORT SURPLUS FOOD
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -44,6 +44,23 @@ const AdminSchema = new mongoose.Schema(
 if (mongoose.models.Admin) delete mongoose.models.Admin;
 export const Admin = mongoose.model("Admin", AdminSchema);
 
+// ─── NGO Schema (Non-Profit Organizations) ──────────────────────────────────
+const NgoSchema = new mongoose.Schema(
+  {
+    name:     { type: String, required: true, trim: true },
+    email:    { type: String, required: true, unique: true, lowercase: true, trim: true },
+    password: { type: String, required: true },
+    role:     { type: String, default: "ngo" },
+    address:  { type: String, default: "" },
+    phone:    { type: String, default: "" },
+    category: { type: String, default: "Food Recovery" }
+  },
+  { timestamps: true }
+);
+
+if (mongoose.models.Ngo) delete mongoose.models.Ngo;
+export const Ngo = mongoose.model("Ngo", NgoSchema);
+
 // ─── Resident Schema (Citizen / User) ───────────────────────────────────────
 const ResidentSchema = new mongoose.Schema(
   {
@@ -83,11 +100,14 @@ const ReportSchema = new mongoose.Schema({
   },
   reporterName: { type: String, required: true },
   reporterEmail: { type: String },
-  status: { type: String, enum: ["Pending", "Resolved", "Flagged"], default: "Pending" },
+  status: { type: String, enum: ["Pending", "Accepted", "Resolved", "Flagged"], default: "Pending" },
+  acceptedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Ngo" },
   imageUrl: { type: String },
   timestamp: { type: Date, default: Date.now },
   votes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Resident" }],
   voteCount: { type: Number, default: 0 },
+  foodServings: { type: Number },
+  isNGOFeature: { type: Boolean, default: false }
 });
 
 if (mongoose.models.Report) delete mongoose.models.Report;
@@ -157,7 +177,3 @@ const IvrStateSchema = new mongoose.Schema({
 
 if (mongoose.models.IvrState) delete mongoose.models.IvrState;
 export const IvrState = mongoose.model("IvrState", IvrStateSchema);
-
-
-
-

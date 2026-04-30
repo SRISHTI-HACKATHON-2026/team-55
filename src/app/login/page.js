@@ -33,6 +33,8 @@ export default function LoginPage() {
       const session = await getSession();
       if (session?.user?.role === "admin") {
         router.push("/admin");
+      } else if (session?.user?.role === "ngo") {
+        router.push("/ngo");
       } else {
         router.push("/resident");
       }

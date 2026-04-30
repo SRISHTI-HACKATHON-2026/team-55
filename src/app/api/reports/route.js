@@ -45,6 +45,8 @@ export async function POST(request) {
               imageUrl: report.imageUrl,
               status: "Pending",
               timestamp: report.timestamp,
+              foodServings: report.foodServings,
+              isNGOFeature: report.isNGOFeature,
             },
           },
           upsert: true,

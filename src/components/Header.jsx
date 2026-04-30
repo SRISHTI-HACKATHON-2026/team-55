@@ -91,9 +91,12 @@ export default function Header() {
 
   // Determine page title based on path/role
   const isAdmin = session.user.role === "admin";
+  const isNgo = session.user.role === "ngo";
+  
   let pageTitle = t("dashboard");
   if (pathname === "/admin") pageTitle = t("admin_control");
-  if (pathname.startsWith("/resident") || (pathname === "/" && !isAdmin)) pageTitle = t("resident_portal");
+  if (pathname === "/ngo") pageTitle = "Recovery Dashboard";
+  if (pathname.startsWith("/resident") || (pathname === "/" && !isAdmin && !isNgo)) pageTitle = t("resident_portal");
 
   return (
     <header className="h-14 md:h-16 w-full bg-white flex items-center justify-between px-3 md:px-10 sticky top-0 z-[100] border-b border-slate-100 shrink-0">
@@ -105,7 +108,7 @@ export default function Header() {
         >
           {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
-
+ 
         {/* 🧭 NAVIGATION CONTROLS */}
         <div className="flex items-center gap-0.5 md:gap-1 mr-1">
           <button 
@@ -116,18 +119,18 @@ export default function Header() {
             <ArrowLeft className="w-3.5 h-3.5 md:w-4 h-4" />
           </button>
           <button 
-            onClick={() => router.push(isAdmin ? "/admin" : "/resident")}
+            onClick={() => router.push(isAdmin ? "/admin" : isNgo ? "/ngo" : "/resident")}
             title="Go Home"
             className="p-1 md:p-1.5 hover:bg-slate-50 text-slate-400 hover:text-primary rounded-lg transition-all"
           >
             <Home className="w-3.5 h-3.5 md:w-4 h-4" />
           </button>
         </div>
-
+ 
         <div className="hidden md:flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0">
           <span>EcoLedger</span>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-primary">{isAdmin ? "Admin" : "Resident"}</span>
+          <span className="text-primary">{isAdmin ? "Admin" : isNgo ? "NGO Partner" : "Resident"}</span>
           {activeTab && (
             <>
               <ChevronRight className="w-3 h-3" />

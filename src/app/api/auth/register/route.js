@@ -18,13 +18,14 @@ export async function POST(request) {
     await connectToDatabase();
 
     // Validate role — default to resident
-    const validRole = ["resident", "admin", "user"].includes(role) ? (role === "user" ? "resident" : role) : "resident";
+    const validRole = ["resident", "admin", "ngo"].includes(role) ? role : "resident";
 
     // Check if account already exists in either collection
     const existingAdmin = await Admin.findOne({ email: email.toLowerCase() });
     const existingResident = await Resident.findOne({ email: email.toLowerCase() });
+    const existingNgo = await Ngo.findOne({ email: email.toLowerCase() });
     
-    if (existingAdmin || existingResident) {
+    if (existingAdmin || existingResident || existingNgo) {
       return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
     }
 
@@ -39,6 +40,15 @@ export async function POST(request) {
         password: hashedPassword,
         role: "admin",
         department: "Municipal"
+      });
+    } else if (validRole === "ngo") {
+      newUser = await Ngo.create({
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
+        password: hashedPassword,
+        role: "ngo",
+        phone: phone?.trim() || "",
+        category: "Food Recovery"
       });
     } else {
       newUser = await Resident.create({

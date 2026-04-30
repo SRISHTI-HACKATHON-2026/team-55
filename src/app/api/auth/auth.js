@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { connectToDatabase, Admin, Resident } from "../../../lib/db/mongoose";
+import { connectToDatabase, Admin, Resident, Ngo } from "../../../lib/db/mongoose";
 
 export const authOptions = {
   providers: [
@@ -20,6 +20,11 @@ export const authOptions = {
         if (!user) {
           user = await Resident.findOne({ email: credentials.email });
           role = "resident";
+        }
+
+        if (!user) {
+          user = await Ngo.findOne({ email: credentials.email });
+          role = "ngo";
         }
 
         if (!user) {

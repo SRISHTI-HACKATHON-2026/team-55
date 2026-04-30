@@ -19,6 +19,8 @@ export default function RootPage() {
 
     if (session.user.role === "admin") {
       router.replace("/admin");
+    } else if (session.user.role === "ngo") {
+      router.replace("/ngo");
     } else {
       router.replace("/resident");
     }
