@@ -4,7 +4,8 @@ import { connectToDatabase, Admin, Resident } from "../../../../lib/db/mongoose"
 
 export async function POST(request) {
   try {
-    const { name, email, password, role, phone, houseNumber, familySize, familyGenders } = await request.json();
+    const body = await request.json();
+    const { name, email, password, role, phone, houseNumber, familySize, familyGenders, ngoId } = body;
 
     // Validate required fields
     if (!name || !email || !password) {
@@ -46,6 +47,7 @@ export async function POST(request) {
         name: name.trim(),
         email: email.toLowerCase().trim(),
         password: hashedPassword,
+        ngoId: ngoId?.trim() || `NGO-${Date.now()}`,
         role: "ngo",
         phone: phone?.trim() || "",
         category: "Food Recovery"

@@ -50,6 +50,7 @@ const NgoSchema = new mongoose.Schema(
     name:     { type: String, required: true, trim: true },
     email:    { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true },
+    ngoId:    { type: String, required: true, unique: true }, // License or Reg Number
     role:     { type: String, default: "ngo" },
     address:  { type: String, default: "" },
     phone:    { type: String, default: "" },
