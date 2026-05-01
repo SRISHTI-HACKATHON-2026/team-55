@@ -1,32 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { Heart, ShieldCheck } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto pt-10 pb-6 border-t border-border">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">
-        <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+        <div className="flex items-center gap-3 justify-center md:justify-start">
+          <ShieldCheck className="w-4 h-4 text-primary" />
           <span>&copy; {currentYear} EcoLedger Smart Systems</span>
-          <span className="hidden md:inline text-border">|</span>
-          <span className="hidden md:inline">Dharwad Municipal Corporation Partner</span>
         </div>
 
-        <div className="flex items-center gap-6">
-          <Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link>
-          <Link href="#" className="hover:text-primary transition-colors">Terms of Service</Link>
-          <Link href="#" className="hover:text-primary transition-colors">Contact Support</Link>
+        <div className="flex items-center justify-center gap-6">
+          <Link href="#" className="hover:text-primary transition-all hover:scale-105">Privacy</Link>
+          <Link href="#" className="hover:text-primary transition-all hover:scale-105">Terms</Link>
+          <Link href="#" className="hover:text-primary transition-all hover:scale-105">Support</Link>
         </div>
 
-        <div className="flex items-center gap-1.5 text-text-muted">
-          <span>Made with</span>
-          <Heart className="w-3 h-3 text-rose-500 fill-rose-500" />
-          <span>for Sustainable Cities</span>
+        <div className="flex items-center justify-center md:justify-end gap-2">
+          <span>Sustainable Digital Dharwad</span>
+          <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 animate-pulse" />
         </div>
       </div>
-    </footer>
+      
+      <div className="flex flex-col items-center gap-2">
+        <div className="h-px w-12 bg-slate-200" />
+        <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.3em]">
+          Institutional Resource Management Infrastructure
+        </p>
+      </div>
+    </div>
   );
 }

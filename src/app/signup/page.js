@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useTranslation } from "react-i18next";
-import { User, Shield, Mail, Lock, Phone, Eye, EyeOff, CheckCircle2, Loader2, Home, Users, Heart, Award } from "lucide-react";
+import { User, Shield, Mail, Lock, Phone, Eye, EyeOff, CheckCircle2, Loader2, Home, Users, Heart, Award, ChevronRight, Globe, ShieldCheck, Leaf, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function SignupPage() {
@@ -79,7 +79,7 @@ export default function SignupPage() {
 
     setSuccess(true);
     await signIn("credentials", { email, password, redirect: false });
-    
+
     // Determine redirect
     let target = "/";
     if (role === "admin") target = "/admin";
@@ -89,195 +89,271 @@ export default function SignupPage() {
     setTimeout(() => { router.push(target); router.refresh(); }, 1800);
   };
 
-  const themeColor = role === "admin" ? "indigo" : role === "ngo" ? "rose" : "emerald";
+  const themeColor = role === "admin" ? "emerald" : role === "ngo" ? "rose" : "primary";
+  const primaryBg = role === "admin" ? "bg-emerald-600" : role === "ngo" ? "bg-rose-600" : "bg-[#1e40af]";
+  const primaryText = role === "admin" ? "text-emerald-600" : role === "ngo" ? "text-rose-600" : "text-[#1e40af]";
+  const primaryShadow = role === "admin" ? "shadow-emerald-600/20" : role === "ngo" ? "shadow-rose-600/20" : "shadow-[#1e40af]/20";
 
   return (
-    <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-${themeColor}-50 via-slate-50 to-${themeColor}-50/30 p-4 transition-colors duration-500`}>
-      <div className="w-full max-w-md">
+    <div className="flex-1 flex flex-col md:flex-row bg-white overflow-hidden relative">
+      {/* Decorative Background Elements */}
+      <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+      <div className={`absolute top-[-10%] right-[-10%] w-[500px] h-[500px] ${role === 'admin' ? 'bg-emerald-500/10' : role === 'ngo' ? 'bg-rose-500/10' : 'bg-[#1e40af]/10'} rounded-full blur-[100px] pointer-events-none transition-colors duration-700`} />
 
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div className={`inline-flex items-center justify-center w-14 h-14 bg-${themeColor}-600 rounded-2xl shadow-lg shadow-${themeColor}-600/30 mb-3 transition-colors`}>
-            <span className="text-2xl">{role === "ngo" ? "❤️" : role === "admin" ? "🛡️" : "🌿"}</span>
-          </div>
-          <h1 className="text-3xl font-black text-slate-800">{t("join_ecoledger")}</h1>
-          <p className="text-slate-500 mt-1 text-sm font-medium">{t("help_keep_dharwad_clean")}</p>
-        </div>
-
-        <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
-
-          {/* Role Tabs */}
-          <div className="p-1.5 bg-slate-50 border-b border-slate-100 flex gap-1">
-            <button type="button" onClick={() => setRole("resident")}
-              className={`flex-1 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${role === "resident" ? "bg-emerald-600 text-white shadow-md" : "text-slate-500 hover:bg-white"
-                }`}>
-              <User className="w-3.5 h-3.5" /> Resident
-            </button>
-            <button type="button" onClick={() => setRole("ngo")}
-              className={`flex-1 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${role === "ngo" ? "bg-rose-600 text-white shadow-md" : "text-slate-500 hover:bg-white"
-                }`}>
-              <Heart className="w-3.5 h-3.5" /> NGO
-            </button>
-            <button type="button" onClick={() => setRole("admin")}
-              className={`flex-1 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${role === "admin" ? "bg-indigo-600 text-white shadow-md" : "text-slate-500 hover:bg-white"
-                }`}>
-              <Shield className="w-3.5 h-3.5" /> Admin
-            </button>
+      {/* LEFT PANEL: Branding & Mission (Desktop Only) */}
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        className={`hidden lg:flex lg:w-1/2 relative flex-col justify-between p-16 overflow-hidden ${primaryBg} text-white transition-colors duration-700`}
+      >
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-16">
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-2xl transition-all duration-700">
+              <ShieldCheck className={`${primaryText} w-7 h-7`} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-2xl font-black tracking-tighter text-white">EcoLedger</span>
+              <span className="text-[10px] font-black text-white/60 uppercase tracking-[0.3em] leading-none">Institutional Portal</span>
+            </div>
           </div>
 
-          <div className="p-6">
-            {success ? (
-              <div className="flex flex-col items-center gap-4 py-10 text-center">
-                <div className={`w-16 h-16 bg-${themeColor}-100 rounded-full flex items-center justify-center`}>
-                  <CheckCircle2 className={`w-10 h-10 text-${themeColor}-600`} />
+          <h1 className="text-6xl font-black tracking-tighter leading-[0.9] mb-8">
+            Build a <br />
+            <span className="text-white/70">Better City</span> <br />
+            Together.
+          </h1>
+
+          <p className="text-xl text-white/80 font-medium max-w-md leading-relaxed mb-12">
+            Join thousands of citizens and officials working towards a more sustainable, accountable, and digitally governed Dharwad.
+          </p>
+
+          <div className="grid grid-cols-1 gap-6 max-w-sm">
+            {[
+              { icon: Leaf, title: "Green Initiatives", desc: "Contribute to city-wide sustainability goals." },
+              { icon: Zap, title: "Efficiency Hub", desc: "Track resource usage with AI precision." },
+              { icon: Globe, title: "Global Impact", desc: "Lead the way in modern civic tech." }
+            ].map((item, idx) => (
+              <div key={idx} className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+                  <item.icon className="text-white w-5 h-5" />
                 </div>
-                <h3 className="text-xl font-black text-slate-800">Account Created!</h3>
-                <p className="text-slate-500 text-sm">Initializing your secure {role} terminal...</p>
-                <div className="flex gap-1">
-                  {[0, 150, 300].map(d => (
-                    <div key={d} className={`w-2 h-2 bg-${themeColor}-400 rounded-full animate-bounce`} style={{ animationDelay: `${d}ms` }} />
-                  ))}
+                <div>
+                  <h4 className="font-bold text-white text-sm">{item.title}</h4>
+                  <p className="text-white/60 text-xs">{item.desc}</p>
                 </div>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                {error && (
-                  <div className="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-2xl text-sm font-medium">
-                    ⚠️ {error}
-                  </div>
-                )}
-
-                {/* Role badge */}
-                <div className={`text-[9px] font-black px-3 py-1.5 rounded-full self-start flex items-center gap-1.5 uppercase tracking-widest ${
-                  role === "admin" ? "bg-indigo-100 text-indigo-700" : role === "ngo" ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"
-                }`}>
-                  {role === "admin" ? <Shield className="w-3 h-3" /> : role === "ngo" ? <Heart className="w-3 h-3" /> : <User className="w-3 h-3" />}
-                  Registering as {role}
-                </div>
-
-                {/* Full Name */}
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">{role === "ngo" ? "Organization Name" : "Full Name"} *</label>
-                  <div className="relative mt-1">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input name="name" type="text" required placeholder={role === "ngo" ? "e.g. Food Recovery Foundation" : "e.g. Yashodhan Gurav"}
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary outline-none transition font-medium" />
-                  </div>
-                </div>
-
-                {/* ── NGO ONLY FIELDS ─────────────────────────────── */}
-                {role === "ngo" && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">NGO Registration ID *</label>
-                    <div className="relative mt-1">
-                      <Award className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <input name="ngoId" type="text" required placeholder="Official Registration/License Number"
-                        className="w-full pl-10 pr-4 py-3 bg-rose-50/50 border border-rose-100 rounded-2xl text-sm focus:ring-2 focus:ring-rose-500 outline-none transition font-medium" />
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Email */}
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Terminal Identity (Email) *</label>
-                  <div className="relative mt-1">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input name="email" type="email" required placeholder="you@example.com"
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary outline-none transition font-medium" />
-                  </div>
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Contact Number</label>
-                  <div className="relative mt-1">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input name="phone" type="tel" placeholder="+91 98765 43210"
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary outline-none transition font-medium" />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Secure Key (Password) *</label>
-                  <div className="relative mt-1">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input name="password" type={showPassword ? "text" : "password"} required placeholder="Min. 6 characters"
-                      className="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary outline-none transition font-medium" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* ── RESIDENT ONLY FIELDS ─────────────────────────────── */}
-                {role === "resident" && (
-                  <div className="flex flex-col gap-4 bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
-                    <p className="text-[10px] font-black text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
-                      <Home className="w-3.5 h-3.5" /> Household Information
-                    </p>
-
-                    <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">House Number *</label>
-                      <div className="relative mt-1">
-                        <Home className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input name="houseNumber" type="text" required={role === "resident"} placeholder="e.g. 12A, Flat 3B"
-                          className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition font-medium" />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between bg-white rounded-xl p-3 border border-slate-200">
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-emerald-600" />
-                        <span className="text-xs font-black text-slate-700 uppercase tracking-tight">Total Family</span>
-                      </div>
-                      <span className={`text-lg font-black ${totalFamily > 0 ? "text-emerald-600" : "text-slate-400"}`}>
-                        {totalFamily}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2">
-                       {['male', 'female', 'other'].map(g => (
-                         <div key={g} className="bg-white rounded-xl p-2 border border-slate-200 flex flex-col items-center gap-1">
-                            <span className="text-xs font-black text-slate-400 uppercase tracking-tighter">{g}</span>
-                            <div className="flex items-center gap-2">
-                               <button type="button" onClick={() => handleGenderChange(g, familyGenders[g] - 1)} className="w-5 h-5 bg-slate-50 rounded-md font-black">-</button>
-                               <span className="text-xs font-black">{familyGenders[g]}</span>
-                               <button type="button" onClick={() => handleGenderChange(g, familyGenders[g] + 1)} className="w-5 h-5 bg-emerald-50 text-emerald-600 rounded-md font-black">+</button>
-                            </div>
-                         </div>
-                       ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Submit */}
-                <button type="submit" disabled={isLoading}
-                  className={`w-full py-4 rounded-2xl font-black text-white mt-1 transition-all flex items-center justify-center gap-2 shadow-xl disabled:opacity-70 uppercase tracking-[0.2em] text-[10px] ${
-                      role === "admin" ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/30" : 
-                      role === "ngo" ? "bg-rose-600 hover:bg-rose-700 shadow-rose-600/30" : 
-                      "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30"
-                    }`}>
-                  {isLoading
-                    ? <><Loader2 className="w-5 h-5 animate-spin" /> {t("creating_account")}</>
-                    : `Create ${role} Account`
-                  }
-                </button>
-
-                <p className="text-center text-xs font-bold text-slate-400 mt-1 uppercase tracking-tight">
-                  Already have an account?{" "}
-                  <Link href="/login" className={`text-${themeColor}-600 hover:underline font-black`}>Log In</Link>
-                </p>
-              </form>
-            )}
+            ))}
           </div>
         </div>
 
-        <p className="text-center text-[10px] font-black text-slate-400 mt-5 uppercase tracking-[0.2em]">
-          🔒 Institutional Security Protocol Active
-        </p>
-      </div>
+        <div className="relative z-10 flex items-center gap-4 text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">
+          <span>Institutional Protocol Active</span>
+          <span className="w-1 h-1 bg-white/20 rounded-full" />
+          <span>v4.0 Secure</span>
+        </div>
+
+        {/* Abstract Background Shapes */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white opacity-[0.05] rounded-full blur-[120px] pointer-events-none" />
+      </motion.div>
+
+      {/* RIGHT PANEL: Form */}
+      <motion.div
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="flex-1 flex items-center justify-center p-6 md:p-12 relative z-10"
+      >
+        <div className="w-full max-w-[480px]">
+          {/* Header (Page Title) */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">Institutional Enrollment</h2>
+            <p className="text-slate-500 font-medium text-sm">Please select your primary role to begin the onboarding process.</p>
+          </div>
+
+          <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/80 border border-slate-100 overflow-hidden relative">
+
+            {/* Premium Role Tabs */}
+            <div className="p-1.5 bg-slate-50 border-b border-slate-100 flex gap-1">
+              {[
+                { id: "resident", label: "Citizen", icon: User, color: "primary" },
+                { id: "ngo", label: "NGO", icon: Heart, color: "rose" },
+                { id: "admin", label: "Official", icon: Shield, color: "emerald" }
+              ].map((r) => (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => setRole(r.id)}
+                  className={`flex-1 py-3.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300 flex items-center justify-center gap-2.5 ${role === r.id
+                      ? `${r.id === 'admin' ? 'bg-emerald-600' : r.id === 'ngo' ? 'bg-rose-600' : 'bg-[#1e40af]'} text-white shadow-xl shadow-${r.color === 'primary' ? '[#1e40af]/20' : r.color + '-600/20'} scale-[1.02]`
+                      : "text-slate-400 hover:text-slate-600 hover:bg-white"
+                    }`}
+                >
+                  <r.icon className={`w-4 h-4 ${role === r.id ? 'text-white' : 'text-slate-400'}`} /> {r.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="p-8">
+              {success ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center gap-8 py-10 text-center"
+                >
+                  <div className={`w-24 h-24 ${role === 'admin' ? 'bg-emerald-100' : role === 'ngo' ? 'bg-rose-100' : 'bg-blue-100'} rounded-full flex items-center justify-center relative`}>
+                    <div className={`absolute inset-0 animate-ping opacity-20 rounded-full ${role === 'admin' ? 'bg-emerald-400' : role === 'ngo' ? 'bg-rose-400' : 'bg-blue-400'}`} />
+                    <CheckCircle2 className={`w-12 h-12 ${primaryText} relative z-10`} />
+                  </div>
+                  <div>
+                    <h3 className="text-3xl font-black text-slate-900 mb-2">Enrollment Success</h3>
+                    <p className="text-slate-500 font-medium italic">Initializing secure institutional terminal...</p>
+                  </div>
+                  <div className="flex gap-2.5">
+                    {[0, 150, 300].map(d => (
+                      <div key={d} className={`w-3 h-3 ${role === 'admin' ? 'bg-emerald-400' : role === 'ngo' ? 'bg-rose-400' : 'bg-indigo-400'} rounded-full animate-bounce`} style={{ animationDelay: `${d}ms` }} />
+                    ))}
+                  </div>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-2xl text-xs font-black flex items-center gap-3 uppercase tracking-wider"
+                    >
+                      <Shield className="w-5 h-5 shrink-0" /> {error}
+                    </motion.div>
+                  )}
+
+                  {/* Input Fields */}
+                  <div className="space-y-5">
+                    {/* Organization / Full Name */}
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                        {role === "ngo" ? "Organization Identity" : "Full Name"}
+                      </label>
+                      <div className="relative group">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors">
+                          <User className="w-full h-full" />
+                        </div>
+                        <input name="name" type="text" required placeholder={role === "ngo" ? "Organization Name" : "Official Name"}
+                          className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition duration-300 font-bold" />
+                      </div>
+                    </div>
+
+                    {/* NGO Specific: Registration ID */}
+                    <AnimatePresence mode="wait">
+                      {role === "ngo" && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0, y: -10 }}
+                          animate={{ opacity: 1, height: "auto", y: 0 }}
+                          exit={{ opacity: 0, height: 0, y: -10 }}
+                          className="space-y-2 overflow-hidden"
+                        >
+                          <label className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] ml-1">NGO License ID *</label>
+                          <div className="relative group">
+                            <Award className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-rose-400" />
+                            <input name="ngoId" type="text" required placeholder="Reg-ID-12345"
+                              className="w-full pl-12 pr-4 py-4 bg-rose-50/30 border border-rose-200 rounded-2xl text-sm focus:bg-white focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition duration-300 font-bold" />
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Email */}
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Institutional Email</label>
+                      <div className="relative group">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 transition-colors" />
+                        <input name="email" type="email" required placeholder="id@ecoledger.gov"
+                          className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition duration-300 font-bold" />
+                      </div>
+                    </div>
+
+                    {/* Resident Specific: House Details */}
+                    <AnimatePresence mode="wait">
+                      {role === "resident" && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="space-y-5"
+                        >
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] ml-1">Municipal Address (House #)</label>
+                            <div className="relative group">
+                              <Home className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-400" />
+                              <input name="houseNumber" type="text" required placeholder="e.g. 24B, Sector 4"
+                                className="w-full pl-12 pr-4 py-4 bg-indigo-50/20 border border-indigo-100 rounded-2xl text-sm focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition duration-300 font-bold" />
+                            </div>
+                          </div>
+
+                          <div className="bg-slate-50 rounded-3xl p-5 border border-slate-200 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Household Breakdown</p>
+                              <span className="text-xs font-black text-indigo-600 px-3 py-1 bg-white rounded-full border border-indigo-100">{totalFamily} Total</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-3">
+                              {['male', 'female', 'other'].map(g => (
+                                <div key={g} className="bg-white rounded-[1.25rem] p-3 border border-slate-100 flex flex-col items-center gap-2 shadow-sm">
+                                  <span className="text-[9px] font-black text-slate-400 uppercase">{g}</span>
+                                  <div className="flex items-center gap-3">
+                                    <button type="button" onClick={() => handleGenderChange(g, familyGenders[g] - 1)} className="w-6 h-6 flex items-center justify-center bg-slate-50 hover:bg-slate-200 rounded-lg text-xs font-black transition-colors">-</button>
+                                    <span className="text-xs font-black w-4 text-center">{familyGenders[g]}</span>
+                                    <button type="button" onClick={() => handleGenderChange(g, familyGenders[g] + 1)} className="w-6 h-6 flex items-center justify-center bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg text-xs font-black transition-colors">+</button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Password */}
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Secure Key</label>
+                      <div className="relative group">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 transition-colors" />
+                        <input name="password" type={showPassword ? "text" : "password"} required placeholder="••••••••"
+                          className="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition duration-300 font-bold" />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className={`w-full py-5 rounded-[1.5rem] font-black text-white transition-all flex items-center justify-center gap-3 shadow-2xl ${primaryBg} ${primaryShadow} active:scale-[0.98] disabled:opacity-70 uppercase tracking-[0.25em] text-[10px]`}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <>Enroll As {role} <ChevronRight className="w-4 h-4" /></>
+                      )}
+                    </button>
+                  </div>
+
+                  <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                    Already an authorized member?{" "}
+                    <Link href="/login" className={`${primaryText} hover:underline ml-1`}>Authenticate Here</Link>
+                  </p>
+                </form>
+              )}
+            </div>
+          </div>
+
+          <p className="text-center text-[10px] font-black text-slate-300 mt-10 uppercase tracking-[0.4em]">
+            Institutional Grade Security Protocol Active
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 }

@@ -44,7 +44,7 @@ export default function CaptainPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full animate-fade-in pb-16">
+    <div className="flex flex-col gap-6 w-full animate-fade-in pb-16 px-4 md:px-12 max-w-7xl mx-auto">
       <div className="text-center mb-2 mt-6">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center justify-center gap-2">
           <ShieldAlert className="w-8 h-8 text-emerald-600" />

@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 import { UIProvider } from "../components/UIProvider";
 import I18nProvider from "../components/I18nProvider";
 import "./globals.css";
-import { ShieldCheck } from "lucide-react"; 
+import { ShieldCheck } from "lucide-react";
 import NavigationProgressBar from "../components/NavigationProgressBar";
 import { Suspense } from "react";
 
@@ -17,7 +17,7 @@ const inter = Inter({
 });
 
 export const viewport = {
-  themeColor: "#064e3b", // Official deep forest green
+  themeColor: "#1e40af", // Official navy blue
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -34,7 +34,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${inter.variable} antialiased`}>
       <body
         suppressHydrationWarning
-        className="bg-slate-50 text-slate-900 h-screen flex flex-col overflow-hidden selection:bg-emerald-200"
+        className="bg-slate-50 text-slate-900 h-screen flex flex-col overflow-hidden selection:bg-primary/20"
       >
         <AuthProvider>
           <I18nProvider>
@@ -43,48 +43,28 @@ export default function RootLayout({ children }) {
                 <NavigationProgressBar />
               </Suspense>
 
-              {/* --- OFFICIAL TOP BANNER --- */}
-              <div className="w-full h-7 bg-primary border-b border-primary-dark z-[60] flex items-center px-4 shrink-0">
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-white">
-                  <ShieldCheck className="w-3.5 h-3.5 text-accent" />
-                  Official EcoLedger Institutional Portal
-                </div>
-              </div>
 
-              {/* Main Wrapper: No gaps between banner and content */}
-              <div className="flex-1 flex overflow-hidden">
-                {/* Sidebar: Flush with banner */}
-                <aside className="border-r border-slate-200 bg-white shadow-sm z-50">
-                  <Sidebar />
-                </aside>
 
-                <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                  {/* Header: Flush with banner */}
-                  <header className="bg-white border-b border-slate-200 h-14 md:h-16 flex items-center shrink-0">
-                    <Header />
-                  </header>
+              {/* --- UNIFIED DEDICATED NAVBAR --- */}
+              <Header />
 
-                  {/* Main Scrollable Content */}
-                  <main className="flex-1 overflow-y-auto bg-slate-50/50">
-                    {/* Responsive padding */}
-                    <div className={`max-w-screen-2xl mx-auto w-full flex flex-col min-h-full ${
-                      !children.props?.childProp?.segment || children.props?.childProp?.segment === "login" || children.props?.childProp?.segment === "signup" 
-                        ? "p-0" 
-                        : "p-4 md:p-8 lg:p-10"
-                    }`}>
+              {/* Main Wrapper */}
+              <div className="flex-1 flex overflow-hidden relative">
+                {/* Sidebar */}
+                <Sidebar />
 
-                      {/* Content Wrapper */}
-                      <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-700">
-                        {children}
-                      </div>
+                {/* Main Content Area */}
+                <main className="flex-1 overflow-y-auto bg-white scroll-smooth flex flex-col">
+                  {/* Content Wrapper */}
+                  <div className="flex-1 flex flex-col">
+                    {children}
+                  </div>
 
-                      {/* Footer */}
-                      <footer className="mt-8 pt-8 border-t border-slate-200">
-                        <Footer />
-                      </footer>
-                    </div>
-                  </main>
-                </div>
+                  {/* Global Footer */}
+                  <footer className="w-full border-t border-slate-100 bg-white px-6 md:px-10 py-12 shrink-0">
+                    <Footer />
+                  </footer>
+                </main>
               </div>
 
             </UIProvider>

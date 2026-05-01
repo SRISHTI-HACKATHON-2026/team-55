@@ -27,7 +27,7 @@ const MapComponent = dynamic(() => import("../../components/MapComponent"), {
 
 export default function AdminPage() {
   const { data: session } = useSession();
-  const { activeTab, setActiveTab } = useUI();
+  const { activeTab, setActiveTab, addNotification } = useUI();
   const { t } = useTranslation();
   const [reports, setReports] = useState([]);
   const [residents, setResidents] = useState([]);
@@ -39,6 +39,19 @@ export default function AdminPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [voiceReports, setVoiceReports] = useState([]);
   const [voiceLoading, setVoiceLoading] = useState(false);
+  
+  // Delayed chart rendering to prevent sizing errors
+  const [chartsVisible, setChartsVisible] = useState(false);
+  useEffect(() => {
+    if (activeTab === "reports" && isMounted) {
+      const timer = setTimeout(() => setChartsVisible(true), 800);
+      return () => {
+        clearTimeout(timer);
+        setChartsVisible(false);
+      };
+    }
+  }, [activeTab, isMounted]);
+
   useEffect(() => {
     setIsMounted(true);
     fetchReports();
@@ -101,6 +114,21 @@ export default function AdminPage() {
       });
       const newStatus = actionType === "verify" ? "Resolved" : "Flagged";
       setReports(prev => prev.map(r => r._id === id ? { ...r, status: newStatus } : r));
+      
+      const report = reports.find(r => r._id === id);
+      if (actionType === "verify") {
+        addNotification({
+          title: "Report Approved! 🎉",
+          message: `Your ${report?.type || "incident"} report has been verified. You earned Trust Points!`,
+          type: "success"
+        });
+      } else {
+        addNotification({
+          title: "Report Reviewed",
+          message: `Your ${report?.type || "incident"} report was flagged by an administrator.`,
+          type: "warning"
+        });
+      }
     } catch (e) { console.error(e); }
   };
 
@@ -320,7 +348,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full animate-fade-in pb-16">
+    <div className="flex flex-col gap-6 w-full animate-fade-in pb-16 px-4 md:px-12 max-w-7xl mx-auto">
       {/* Header */}
       <div className="text-center mb-2 mt-6">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center justify-center gap-2">
@@ -329,23 +357,7 @@ export default function AdminPage() {
         <p className="text-slate-500 mt-1 font-medium">{t("dharwad_smart_civic")}</p>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="flex gap-2 bg-slate-100 p-1.5 rounded-2xl">
-        <button onClick={() => setActiveTab("reports")}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === "reports" ? "bg-white shadow text-emerald-700" : "text-slate-500 hover:text-slate-700"}`}>
-          <Activity className="w-4 h-4" /> {t("reports")}
-        </button>
-        <button onClick={() => setActiveTab("community")}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === "community" ? "bg-white shadow text-indigo-700" : "text-slate-500 hover:text-slate-700"}`}>
-          <Users className="w-4 h-4" /> {t("community")}
-          {totalResidents > 0 && <span className="bg-indigo-100 text-indigo-600 text-[10px] font-black px-1.5 py-0.5 rounded-full">{totalResidents}</span>}
-        </button>
-        <button onClick={() => setActiveTab("voice")}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === "voice" ? "bg-white shadow text-amber-700" : "text-slate-500 hover:bg-slate-700"}`}>
-          <Mic className="w-4 h-4" /> {t("voice")}
-          {voiceReports.length > 0 && <span className="bg-amber-100 text-amber-600 text-[10px] font-black px-1.5 py-0.5 rounded-full">{voiceReports.length}</span>}
-        </button>
-      </div>
+
 
       {/* ── REPORTS TAB ─────────────────────────────────────────────────────── */}
       {activeTab === "reports" && (
@@ -366,16 +378,16 @@ export default function AdminPage() {
                 <p className="text-[10px] text-emerald-500 uppercase tracking-widest font-bold mt-1">{t("resolved")}</p>
               </div>
             </div>
-            {reports.length > 0 && isMounted && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {reports.length > 0 && isMounted && chartsVisible && (
+              <div key={`charts-${activeTab}`} className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-700">
                 {/* Pie Chart */}
                 <div className="w-full flex flex-col min-w-0">
                   <p className="text-xs font-bold text-slate-400 uppercase mb-2 text-center">{t("issue_distribution")}</p>
-                  <div className="w-full" style={{ height: "250px" }}>
-                    <ResponsiveContainer width="100%" height="100%">
+                  <div className="w-full relative" style={{ height: "250px", minHeight: "250px", minWidth: 0 }}>
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                       <PieChart>
                         <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={5} dataKey="value">
-                          {pieData.map((e, i) => <Cell key={i} fill={e.color} />)}
+                          {pieData.map((e, i) => <Cell key={`cell-${i}`} fill={e.color} />)}
                         </Pie>
                         <RechartsTooltip contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} />
                       </PieChart>
@@ -385,8 +397,8 @@ export default function AdminPage() {
                 {/* Bar Chart */}
                 <div className="w-full flex flex-col min-w-0">
                   <p className="text-xs font-bold text-slate-400 uppercase mb-2 text-center">{t("activity_7_day")}</p>
-                  <div className="w-full" style={{ height: "250px" }}>
-                    <ResponsiveContainer width="100%" height="100%">
+                  <div className="w-full relative" style={{ height: "250px", minHeight: "250px", minWidth: 0 }}>
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                       <BarChart data={barData}>
                         <XAxis dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                         <RechartsTooltip cursor={{ fill: "#f8fafc" }} contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} />
@@ -397,6 +409,11 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
+            {!chartsVisible && reports.length > 0 && (
+              <div className="h-[250px] w-full bg-slate-50 animate-pulse rounded-2xl flex items-center justify-center">
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Preparing Analytics...</p>
+              </div>
+            )}
           </div>
 
           {/* Deep Street Level Leaflet Map */}
@@ -405,7 +422,7 @@ export default function AdminPage() {
               <MapPin className="w-5 h-5 text-emerald-600" />
               <h2 className="text-xl font-extrabold text-slate-800">Geospatial Report Analysis</h2>
             </div>
-            <MapComponent reports={reports} onResolve={(id) => handleAction(id, "verify", { stopPropagation: () => {} })} />
+            <MapComponent reports={reports} onResolve={(id) => handleAction(id, "verify", { stopPropagation: () => { } })} />
           </div>
 
           {/* Report Lists */}
@@ -677,7 +694,7 @@ export default function AdminPage() {
       )}
       {/* ── VOICE TAB ───────────────────────────────────────────────────────── */}
       {activeTab === "voice" && (
-        <div className="w-full flex flex-col gap-6 animate-fade-in">
+        <div className="w-full flex flex-col gap-10 animate-fade-in">
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
             <div className="flex items-center gap-3 border-b border-slate-50 pb-4 mb-4">
               <div className="p-2 bg-amber-100 rounded-xl text-amber-600">
@@ -705,9 +722,8 @@ export default function AdminPage() {
                         <div>
                           <div className="flex items-center gap-2">
                             <h3 className="font-bold text-slate-800 capitalize">{report.selectedService} Report</h3>
-                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase ${
-                              report.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                            }`}>
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase ${report.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                              }`}>
                               {report.status}
                             </span>
                           </div>
@@ -718,7 +734,7 @@ export default function AdminPage() {
                         <span className="text-[10px] bg-slate-200 text-slate-600 font-black px-2 py-0.5 rounded-full uppercase">📞 {report.phone}</span>
                       </div>
                     </div>
-                    
+
                     {/* Rich Data Display */}
                     <div className="bg-white rounded-xl p-3 border border-slate-100 grid grid-cols-2 gap-3">
                       {report.selectedService === 'water' && (

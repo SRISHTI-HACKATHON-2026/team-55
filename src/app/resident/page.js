@@ -7,6 +7,7 @@ import { useUI } from "../../components/UIProvider";
 import { useTranslation } from "react-i18next";
 import { Droplet, Trash2, Box, CheckCircle2, MapPin, Loader2, Navigation, Clock, Trophy, Award, ShieldAlert, AlertTriangle, Zap, TrendingDown, Globe, Heart, Leaf } from "lucide-react";
 import { db } from "../../lib/db/dexie";
+import { motion, AnimatePresence } from "framer-motion";
 import SyncService from "../../components/SyncService";
 import dynamic from "next/dynamic";
 
@@ -19,7 +20,7 @@ export default function ResidentPage() {
   const [redirecting, setRedirecting] = useState(false);
 
   // Tab Navigation (Global State)
-  const { activeTab, setActiveTab } = useUI();
+  const { activeTab, setActiveTab, addNotification } = useUI();
 
   // Data States
   const [myReports, setMyReports] = useState([]);
@@ -44,7 +45,7 @@ export default function ResidentPage() {
   // ── Authentication Redirects ───────────────────────────────────────────
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (!session) {
       router.replace("/login");
     } else if (session.user.role === "admin") {
@@ -90,7 +91,7 @@ export default function ResidentPage() {
             const userId = session.user.id;
             const votes = r.votes || [];
             const hasVoted = votes.includes(userId);
-            const newVotes = hasVoted 
+            const newVotes = hasVoted
               ? votes.filter(id => id !== userId)
               : [...votes, userId];
             return { ...r, votes: newVotes, voteCount: data.voteCount };
@@ -248,11 +249,11 @@ export default function ResidentPage() {
       };
 
       // 0. Pre-check for duplicates (Same Type + Same Area within ~100m)
-      const latRange = 0.001; 
+      const latRange = 0.001;
       const lngRange = 0.001;
       const localDuplicate = await db.reports
         .where("type").equals(type)
-        .and(r => 
+        .and(r =>
           r.status === "Pending" &&
           Math.abs(r.lat - position.lat) < latRange &&
           Math.abs(r.lng - position.lng) < lngRange
@@ -265,6 +266,11 @@ export default function ResidentPage() {
       }
 
       await db.reports.add(report);
+      addNotification({
+        title: "Incident Logged",
+        message: `Your ${type} report was successfully submitted and is awaiting review.`,
+        type: "success"
+      });
 
       // Immediately sync to MongoDB
       try {
@@ -379,12 +385,19 @@ export default function ResidentPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 items-center w-full animate-fade-in pb-16">
+    <div className="flex flex-col gap-6 items-center max-w-[1200px] w-full mx-auto animate-fade-in pb-16 px-6">
       <SyncService />
 
       {/* Tab Navigation */}
-
-
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+          className="w-full flex flex-col items-center"
+        >
       {activeTab === "report" && (
         <div className="w-full flex flex-col gap-6 animate-fade-in">
           <div className="text-center mb-2 mt-2">
@@ -450,13 +463,13 @@ export default function ResidentPage() {
                     <div className="flex items-center gap-2">
                       {aiClassification.severity && (
                         <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${aiClassification.severity === 'Severe' ? 'bg-rose-100 text-rose-700' :
-                            aiClassification.severity === 'Moderate' ? 'bg-amber-100 text-amber-700' :
-                              'bg-emerald-100 text-emerald-700'
+                          aiClassification.severity === 'Moderate' ? 'bg-amber-100 text-amber-700' :
+                            'bg-emerald-100 text-emerald-700'
                           }`}>{aiClassification.severity}</span>
                       )}
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${aiClassification.confidence >= 70 ? 'bg-emerald-100 text-emerald-700' :
-                          aiClassification.confidence >= 40 ? 'bg-amber-100 text-amber-700' :
-                            'bg-rose-100 text-rose-700'
+                        aiClassification.confidence >= 40 ? 'bg-amber-100 text-amber-700' :
+                          'bg-rose-100 text-rose-700'
                         }`}>{aiClassification.confidence}% sure</span>
                     </div>
                   </div>
@@ -464,7 +477,7 @@ export default function ResidentPage() {
                   {/* Detected type + short label */}
                   <div className="flex items-center gap-2">
                     <span className={`text-xs font-black px-3 py-1 rounded-full text-white ${aiClassification.type === 'Water Wastage' ? 'bg-sky-500' :
-                        aiClassification.type === 'Garbage' ? 'bg-stone-500' : 'bg-amber-500'
+                      aiClassification.type === 'Garbage' ? 'bg-stone-500' : 'bg-amber-500'
                       }`}>{aiClassification.type}</span>
                     {aiClassification.shortLabel && (
                       <span className="text-sm font-semibold text-slate-700">{aiClassification.shortLabel}</span>
@@ -526,59 +539,68 @@ export default function ResidentPage() {
             <button
               disabled={isLocating}
               onClick={() => handleReport("Water Wastage")}
-              className={`w-full relative group overflow-hidden text-white rounded-3xl p-6 flex items-center gap-6 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${selectedType === "Water Wastage"
-                  ? "bg-sky-600 ring-4 ring-sky-300 ring-offset-2 scale-105 shadow-sky-600/40"
-                  : "bg-sky-500 hover:bg-sky-600 shadow-sky-500/20"
+              className={`w-full relative group overflow-hidden text-white rounded-[2.5rem] p-8 flex items-center gap-8 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${selectedType === "Water Wastage"
+                ? "bg-[#1e40af] ring-4 ring-blue-300 ring-offset-2 scale-[1.02] shadow-[#1e40af]/40"
+                : "bg-slate-800 hover:bg-[#1e40af] shadow-slate-900/20"
                 }`}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="bg-white/20 p-4 rounded-2xl">
-                <Droplet className="w-10 h-10" strokeWidth={2} />
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="bg-white/10 p-5 rounded-3xl backdrop-blur-md border border-white/10">
+                <Droplet className="w-10 h-10" strokeWidth={2.5} />
               </div>
               <div className="text-left">
-                <span className="text-xl font-bold block">{t("water_wastage")}</span>
-                {selectedType === "Water Wastage" && <span className="text-xs text-sky-100 font-bold">🤖 {t("ai_detected")}</span>}
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 mb-1">Issue Type</p>
+                <span className="text-2xl font-black tracking-tighter block">{t("water_wastage")}</span>
+                {selectedType === "Water Wastage" && <span className="text-xs text-blue-200 font-bold flex items-center gap-1.5 mt-1">
+                  <Zap className="w-3.5 h-3.5" /> 🤖 {t("ai_detected")}
+                </span>}
               </div>
             </button>
 
             <button
               disabled={isLocating}
               onClick={() => handleReport("Garbage")}
-              className={`w-full relative group overflow-hidden text-white rounded-3xl p-6 flex items-center gap-6 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${selectedType === "Garbage"
-                  ? "bg-stone-600 ring-4 ring-stone-300 ring-offset-2 scale-105 shadow-stone-600/40"
-                  : "bg-stone-500 hover:bg-stone-600 shadow-stone-500/20"
+              className={`w-full relative group overflow-hidden text-white rounded-[2.5rem] p-8 flex items-center gap-8 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${selectedType === "Garbage"
+                ? "bg-[#1e40af] ring-4 ring-blue-300 ring-offset-2 scale-[1.02] shadow-[#1e40af]/40"
+                : "bg-slate-800 hover:bg-[#1e40af] shadow-slate-900/20"
                 }`}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="bg-white/20 p-4 rounded-2xl">
-                <Trash2 className="w-10 h-10" strokeWidth={2} />
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="bg-white/10 p-5 rounded-3xl backdrop-blur-md border border-white/10">
+                <Trash2 className="w-10 h-10" strokeWidth={2.5} />
               </div>
               <div className="text-left">
-                <span className="text-xl font-bold block">{t("garbage_pile")}</span>
-                {selectedType === "Garbage" && <span className="text-xs text-stone-200 font-bold">🤖 {t("ai_detected")}</span>}
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 mb-1">Issue Type</p>
+                <span className="text-2xl font-black tracking-tighter block">{t("garbage_pile")}</span>
+                {selectedType === "Garbage" && <span className="text-xs text-blue-200 font-bold flex items-center gap-1.5 mt-1">
+                  <Zap className="w-3.5 h-3.5" /> 🤖 {t("ai_detected")}
+                </span>}
               </div>
             </button>
 
             <button
               disabled={isLocating}
               onClick={() => handleReport("Material Waste")}
-              className={`w-full relative group overflow-hidden text-white rounded-3xl p-6 flex items-center gap-6 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${selectedType === "Material Waste"
-                  ? "bg-amber-600 ring-4 ring-amber-300 ring-offset-2 scale-105 shadow-amber-600/40"
-                  : "bg-amber-500 hover:bg-amber-600 shadow-amber-500/20"
+              className={`w-full relative group overflow-hidden text-white rounded-[2.5rem] p-8 flex items-center gap-8 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${selectedType === "Material Waste"
+                ? "bg-[#1e40af] ring-4 ring-blue-300 ring-offset-2 scale-[1.02] shadow-[#1e40af]/40"
+                : "bg-slate-800 hover:bg-[#1e40af] shadow-slate-900/20"
                 }`}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="bg-white/20 p-4 rounded-2xl">
-                <Box className="w-10 h-10" strokeWidth={2} />
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="bg-white/10 p-5 rounded-3xl backdrop-blur-md border border-white/10">
+                <Box className="w-10 h-10" strokeWidth={2.5} />
               </div>
               <div className="text-left">
-                <span className="text-xl font-bold block">{t("material_waste")}</span>
-                {selectedType === "Material Waste" && <span className="text-xs text-amber-100 font-bold">🤖 {t("ai_detected")} ({materialType})</span>}
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 mb-1">Issue Type</p>
+                <span className="text-2xl font-black tracking-tighter block">{t("material_waste")}</span>
+                {selectedType === "Material Waste" && <span className="text-xs text-blue-200 font-bold flex items-center gap-1.5 mt-1">
+                  <Zap className="w-3.5 h-3.5" /> 🤖 {t("ai_detected")} ({materialType})
+                </span>}
               </div>
             </button>
 
             <div className="h-px bg-slate-100 my-2" />
-            
+
             <div className="bg-emerald-50 rounded-3xl p-6 border-2 border-emerald-100 space-y-4">
               <div className="flex items-center gap-4">
                 <div className="bg-emerald-500 text-white p-3 rounded-2xl shadow-lg shadow-emerald-500/20">
@@ -650,9 +672,9 @@ export default function ResidentPage() {
                           <span className="text-[10px] font-black text-slate-600">{report.voteCount || 0}</span>
                         </div>
                       </div>
-                      
+
                       <p className="text-sm text-slate-600 line-clamp-2">{report.description || "No description provided."}</p>
-                      
+
                       <div className="flex items-center gap-2 mt-2">
                         <MapPin className="w-3.5 h-3.5 text-indigo-500" />
                         <span className="text-xs font-bold text-slate-500">Dharwad, Karnataka</span>
@@ -665,14 +687,13 @@ export default function ResidentPage() {
                           </div>
                           <span className="text-xs font-bold text-slate-500">{report.reporterName}</span>
                         </div>
-                        
-                        <button 
+
+                        <button
                           onClick={() => handleVote(report._id)}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${
-                            hasVoted 
-                              ? "bg-rose-50 text-rose-600 border border-rose-100" 
-                              : "bg-indigo-50 text-indigo-600 border border-indigo-50 hover:bg-indigo-100"
-                          }`}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${hasVoted
+                            ? "bg-rose-50 text-rose-600 border border-rose-100"
+                            : "bg-indigo-50 text-indigo-600 border border-indigo-50 hover:bg-indigo-100"
+                            }`}
                         >
                           <Heart className={`w-3.5 h-3.5 ${hasVoted ? "fill-rose-600" : ""}`} />
                           {hasVoted ? t("voted") : t("upvote")}
@@ -768,18 +789,20 @@ export default function ResidentPage() {
       )}
 
       {activeTab === "water" && (
-        <WaterManagement user={session?.user} />
+        <WaterManagement user={session?.user} addNotification={addNotification} />
       )}
 
       {activeTab === "electricity" && (
-        <ElectricityManagement user={session?.user} />
+        <ElectricityManagement user={session?.user} addNotification={addNotification} />
       )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
 
 // ─── Electricity Management Component ───────────────────────────────────────
-function ElectricityManagement({ user }) {
+function ElectricityManagement({ user, addNotification }) {
   const { t } = useTranslation();
   const [units, setUnits] = useState("");
   const [loading, setLoading] = useState(false);
@@ -800,13 +823,13 @@ function ElectricityManagement({ user }) {
         setHistory(data.history || []);
         setAverage(data.currentAverage || 0);
       }
-      
+
       // 2. Append unsynced from Dexie
       const pending = await db.electricity_usage.where("synced").equals(0).toArray();
       if (pending.length > 0) {
         setHistory(prev => [...pending.map(p => ({ ...p, _id: p.id, status: "Pending Sync" })), ...prev]);
       }
-    } catch (e) { 
+    } catch (e) {
       // If network fails entirely, show what's in Dexie
       const allLocal = await db.electricity_usage.toArray();
       setHistory(allLocal.map(p => ({ ...p, _id: p.id, status: p.synced ? "Synced" : "Pending Sync" })));
@@ -817,7 +840,7 @@ function ElectricityManagement({ user }) {
     e.preventDefault();
     if (!units || units <= 0) return;
     setLoading(true);
-    
+
     const localLog = {
       residentId: user.id,
       units: parseFloat(units),
@@ -828,25 +851,33 @@ function ElectricityManagement({ user }) {
     try {
       // 1. Save to Dexie immediately
       await db.electricity_usage.add(localLog);
-      
+
       // 2. Attempt network sync
       const res = await fetch("/api/electricity-usage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ units: localLog.units })
       });
-      
+
       if (res.ok) {
         const data = await res.json();
         setMessage({ type: data.usage.scoreImpact >= 0 ? "success" : "warning", text: data.message });
         // Mark as synced locally
         await db.electricity_usage.where("date").equals(localLog.date).modify({ synced: 1 });
+        
+        if (data.usage.scoreImpact > 0) {
+          addNotification({
+            title: "Points Earned!",
+            message: `You earned ${data.usage.scoreImpact} XP for your electricity conservation effort!`,
+            type: "success"
+          });
+        }
       } else {
         setMessage({ type: "success", text: "Saved locally. Will sync when online!" });
       }
       setUnits("");
       fetchHistory();
-    } catch (e) { 
+    } catch (e) {
       setMessage({ type: "success", text: "Offline: Saved locally!" });
       setUnits("");
       fetchHistory();
@@ -934,7 +965,7 @@ function ElectricityManagement({ user }) {
 }
 
 // ─── Water Management Component ──────────────────────────────────────────────
-function WaterManagement({ user }) {
+function WaterManagement({ user, addNotification }) {
   const { t } = useTranslation();
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
@@ -987,12 +1018,20 @@ function WaterManagement({ user }) {
         const data = await res.json();
         setMessage({ type: data.scoreImpact > 0 ? "success" : "warning", text: data.message });
         await db.water_usage.where("date").equals(localLog.date).modify({ synced: 1 });
+        
+        if (data.scoreImpact > 0) {
+          addNotification({
+            title: "Points Earned!",
+            message: `You earned ${data.scoreImpact} XP for your water conservation effort!`,
+            type: "success"
+          });
+        }
       } else {
         setMessage({ type: "success", text: "Saved locally. Will sync when online!" });
       }
       setAmount("");
       fetchHistory();
-    } catch (e) { 
+    } catch (e) {
       setMessage({ type: "success", text: "Offline: Saved locally!" });
       setAmount("");
       fetchHistory();

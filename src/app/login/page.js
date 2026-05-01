@@ -43,15 +43,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col md:flex-row overflow-hidden selection:bg-primary-light">
+    <div className="flex-1 bg-white flex flex-col md:flex-row overflow-hidden selection:bg-primary-light">
 
-      {/* 🏛️ LEFT PANEL: Institutional Branding */}
+      {/* LEFT PANEL: Institutional Branding */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         className="hidden md:flex md:w-1/2 bg-primary p-16 flex-col justify-between relative overflow-hidden"
       >
-        {/* Modern Geometric Pattern Overlay */}
         <div className="absolute inset-0 z-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
         <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-accent/10 rounded-full blur-2xl" />
@@ -106,21 +105,13 @@ export default function LoginPage() {
         </div>
       </motion.div>
 
-      {/* 🔐 RIGHT PANEL: Secure Authentication */}
+      {/* RIGHT PANEL: Secure Authentication */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         className="flex-1 flex items-center justify-center p-6 md:p-12 bg-white"
       >
         <div className="w-full max-w-[440px]">
-          {/* Mobile-only Header */}
-          <div className="md:hidden flex flex-col items-center mb-10 text-center">
-            <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-xl mb-4">
-              <ShieldCheck className="text-white w-8 h-8" />
-            </div>
-            <h1 className="text-3xl font-black tracking-tighter text-slate-900">EcoLedger</h1>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Official Municipal Gateway</p>
-          </div>
 
           <div className="mb-10">
             <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">Authorized Access</h2>
@@ -166,7 +157,6 @@ export default function LoginPage() {
             </div>
 
             <div className="flex flex-col gap-4 pt-6">
-              {/* Primary Login Button */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -181,7 +171,6 @@ export default function LoginPage() {
                 <div className="h-px flex-1 bg-slate-100" />
               </div>
 
-              {/* Secondary Signup Button */}
               <Link
                 href="/signup"
                 className="w-full bg-white border-2 border-slate-100 hover:border-primary text-slate-700 font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 group"
@@ -193,12 +182,12 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <footer className="mt-16 text-center">
+          <div className="mt-16 text-center">
             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-loose">
               By accessing this terminal, you agree to the <br />
               <Link href="#" className="text-primary hover:underline">Institutional Security Protocols</Link>
             </p>
-          </footer>
+          </div>
         </div>
       </motion.div>
     </div>

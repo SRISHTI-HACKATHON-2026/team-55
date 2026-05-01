@@ -33,90 +33,97 @@ export async function POST(request) {
     const base64Data = imageBase64.split(",")[1];
     const mimeType = imageBase64.split(";")[0].split(":")[1] || "image/jpeg";
 
-    const prompt = `You are an expert AI waste analyst for EcoLedger, a civic waste reporting system in Dharwad, Karnataka, India.
+    const prompt = `You are a Senior Forensic Waste Inspector for the Dharwad Municipal Corporation. Your task is to perform a high-precision technical analysis of an environmental violation at: "${locationStr}".
 
-A resident has photographed a waste/environmental issue at: "${locationStr}"
+DO NOT provide generic summaries. I need a technical evidence report based EXACTLY on what is visible.
 
-Your job is to carefully analyze EXACTLY what is visible in the image and produce a complete incident report.
+PHASE 1: VISUAL INSPECTION
+- Identify the exact objects (e.g., "three discarded plastic milk sachets", "rusty 2-inch iron pipe", "clogged cement drain").
+- Identify signs of duration (e.g., "freshly dumped", "weathered debris showing long-term accumulation").
 
-STEP 1 - LOOK CAREFULLY at the image and note:
-- What specific objects, materials, or conditions are visible?
-- What colors, textures, or quantities can you identify?
-- What is the approximate severity (minor/moderate/severe)?
-- Is it on a road, sidewalk, drain, open ground, near a building?
+PHASE 2: CLASSIFICATION CATEGORY
+- "Water Wastage": Active leaks, stagnant pooling, pipe bursts, or drain overflows.
+- "Garbage": Loose litter, household waste piles, or overflowing bins.
+- "Material Waste": Specific industrial/construction debris or high-volume recyclables (Plastic/E-Waste/Glass/Metal/Paper).
 
-STEP 2 - CLASSIFY into one of:
-- "Water Wastage": water leakage, burst pipe, drain overflow, flooding, stagnant water, waterlogging
-- "Garbage": trash pile, litter, overflowing dustbin, illegal dumping, mixed household waste on public space
-- "Material Waste": specific recyclable materials — plastic bags/bottles, e-waste/electronics, glass, metal scrap, cardboard/paper
+PHASE 3: INCIDENT REPORT GENERATION
+Write a 4-sentence technical description that:
+1. Precise Identification: Start with the primary material and its estimated quantity/state.
+2. Contextual Location: Describe how it relates to the immediate environment at "${locationStr}".
+3. Impact Assessment: State the specific risk (e.g., "breeding ground for mosquitoes", "clogging storm-water infrastructure").
+4. Forensic Detail: Note any identifying marks or colors visible.
 
-STEP 3 - Write a DETAILED description (3-4 sentences) that:
-- Starts with what TYPE of waste this is and WHY you classified it that way
-- Describes EXACTLY what you see (specific objects, colors, quantity, state)
-- Mentions the location: "${locationStr}"
-- Ends with the urgency level and recommended action
+Respond ONLY in this exact JSON format:
+{"type": "<Water Wastage|Garbage|Material Waste>", "materialType": "<Plastic|E-Waste|Glass|Metal|Cardboard/Paper|Other|null>", "confidence": <0-100>, "shortLabel": "<4-6 word technical summary>", "severity": "<Minor|Moderate|Severe>", "description": "<Detailed forensic-style description as per Phase 3>"}
 
-Respond ONLY in this exact JSON format (no markdown, no code blocks):
-{"type": "<Water Wastage|Garbage|Material Waste>", "materialType": "<Plastic|E-Waste|Glass|Metal|Cardboard/Paper|Other|null>", "confidence": <0-100>, "shortLabel": "<4-6 word summary of what you see>", "severity": "<Minor|Moderate|Severe>", "description": "<3-4 sentence detailed description of the specific waste visible in the image, including location>"}
+IMPORTANT: If you see multiple issues, prioritize the most severe. Be extremely specific about what you see in THIS exact image.`;
 
-IMPORTANT: Be specific. Do NOT write generic descriptions. Describe the ACTUAL objects and conditions you see in THIS image.`;
-
-    // Try models in order — use v1beta which supports vision models
+    // Priority: gemini-1.5-flash is the most stable and free-tier friendly vision model
     const MODELS = [
-      "gemini-2.0-flash",
       "gemini-1.5-flash",
       "gemini-1.5-flash-latest",
-      "gemini-pro-vision",
+      "gemini-2.0-flash",
     ];
 
-    let response = null;
-    let usedModel = null;
+    let lastError = "Unknown error";
+    let apiResponse = null;
+
     for (const model of MODELS) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      // Use stable v1 endpoint
+      const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
 
-      const attempt = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: mimeType, data: base64Data } }] }],
-          generationConfig: { temperature: 0.2, maxOutputTokens: 600 },
-        }),
-      });
+      try {
+        const attempt = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ 
+              parts: [
+                { text: prompt }, 
+                { inline_data: { mime_type: mimeType, data: base64Data } }
+              ] 
+            }],
+            generationConfig: { 
+              temperature: 0.1, 
+              maxOutputTokens: 800
+            },
+          }),
+        });
 
-      if (attempt.ok) {
-        response = attempt;
-        usedModel = model;
-        console.log(`Using Gemini model: ${model}`);
-        break;
-      } else {
-        const err = await attempt.text();
-        console.warn(`Model ${model} failed:`, err.slice(0, 150));
+        if (attempt.ok) {
+          apiResponse = await attempt.json();
+          console.log(`Successfully used model: ${model}`);
+          break;
+        } else {
+          const errData = await attempt.json();
+          lastError = errData.error?.message || "API request failed";
+          console.warn(`Model ${model} failed: ${lastError}`);
+        }
+      } catch (e) {
+        lastError = e.message;
+        console.error(`Fetch error for ${model}:`, e);
       }
     }
 
-    if (!response) {
-      // All models failed — return a generic description so the user still gets auto-fill
+    if (!apiResponse) {
       return NextResponse.json({
         success: true,
         classification: {
           type: "Garbage",
           materialType: null,
-          confidence: 40,
-          shortLabel: "Environmental issue detected",
+          confidence: 0,
+          shortLabel: "AI Analysis Offline",
           severity: "Moderate",
-          description: `An environmental issue has been reported at ${locationStr}. The AI model could not analyze the photo at this time — please describe what you see in the text box below and submit your report manually.`,
+          description: `Analysis currently unavailable (Error: ${lastError}). Resident reports an issue at ${locationStr}. Please describe the situation manually.`,
         },
       });
     }
 
-    const data = await response.json();
-    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    console.log("Gemini raw response:", rawText);
-
-    // Extract JSON even if Gemini wraps it in markdown code blocks
+    const rawText = apiResponse.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    
+    // Extract JSON
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error("No JSON found in response:", rawText);
       return NextResponse.json({ 
         success: true, 
         classification: {
@@ -124,22 +131,21 @@ IMPORTANT: Be specific. Do NOT write generic descriptions. Describe the ACTUAL o
           materialType: null,
           confidence: 40,
           shortLabel: "Unidentified issue",
-          description: `An environmental issue has been reported at ${locationStr}. The photo could not be fully analyzed. Please verify and update the description manually.`
+          description: `Reported at ${locationStr}. The photo was processed but details are unclear. Please verify manually.`
         }
       });
     }
 
     const classification = JSON.parse(jsonMatch[0]);
-    // Ensure description is always present
     if (!classification.description) {
-      classification.description = `An environmental issue (${classification.type}) has been reported at ${locationStr}.`;
+      classification.description = `Incident reported at ${locationStr}. Type: ${classification.type}.`;
     }
     classification.locationStr = locationStr;
 
     return NextResponse.json({ success: true, classification });
 
   } catch (error) {
-    console.error("Classification error:", error);
+    console.error("Critical Classification Error:", error);
     return NextResponse.json({ error: "Internal Server Error", details: error.message }, { status: 500 });
   }
 }
